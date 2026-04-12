@@ -3,7 +3,7 @@
  * All HTTP calls to the production API go through this module.
  */
 
-const API_BASE = "https://www.reelscribe.app/api/v1";
+const API_BASE = "https://www.reelscribe.app/v1";
 
 export interface ApiError {
   error: { code: string; message: string; status: number };
