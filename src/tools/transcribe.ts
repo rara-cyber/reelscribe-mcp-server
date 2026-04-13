@@ -3,10 +3,17 @@ import { z } from "zod";
 import * as api from "../client.js";
 import { validateUrl } from "../validators.js";
 
+const POLL_INTERVAL_MS = 3_000;
+const MAX_WAIT_MS = 90_000;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function register(server: McpServer) {
   server.tool(
     "transcribe_video",
-    "Submit a video URL for transcription. Supports Instagram Reels/Posts, TikTok videos, and YouTube videos/Shorts. Costs 1 credit. Returns a requestId to check status later.",
+    "Submit a video URL for transcription and wait for the result. Supports Instagram Reels/Posts, TikTok videos, and YouTube videos/Shorts. Costs 1 credit. Returns the full transcription when complete.",
     { url: z.string().describe("Video URL (Instagram, TikTok, or YouTube)") },
     async ({ url }) => {
       const validation = validateUrl(url);
@@ -27,17 +34,59 @@ export function register(server: McpServer) {
 
       try {
         const result = await api.transcribe(validation.normalizedUrl!);
+
+        // If duplicate, fetch and return the existing transcription directly
+        if (result.duplicate && result.transcription?.id) {
+          const existing = await api.getTranscription({ id: result.transcription.id });
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify(
+                  { ...existing, platform: validation.platform, duplicate: true },
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+        }
+
+        // Poll until completed, failed, or timeout
+        const requestId = result.requestId;
+        const start = Date.now();
+
+        while (Date.now() - start < MAX_WAIT_MS) {
+          await sleep(POLL_INTERVAL_MS);
+          const transcription = await api.getTranscription({ requestId });
+
+          if (transcription.status === "completed" || transcription.status === "failed") {
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: JSON.stringify(
+                    { ...transcription, platform: validation.platform },
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+          }
+        }
+
+        // Timeout — return what we have so the user can check manually
         return {
           content: [
             {
               type: "text" as const,
               text: JSON.stringify(
                 {
-                  ...result,
+                  requestId,
+                  status: "processing",
                   platform: validation.platform,
-                  tip: result.duplicate
-                    ? "This video was already transcribed. Use get_transcription to see the result."
-                    : "Transcription submitted. Use get_transcription with the requestId to check status.",
+                  message: "Transcription is still processing. Use get_transcription with this requestId to check later.",
                 },
                 null,
                 2
