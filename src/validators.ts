@@ -44,8 +44,9 @@ function validateInstagram(url: string): ValidateResult {
     return { valid: false, error: "Not an Instagram URL" };
   }
 
+  // Match /reel/CODE, /reels/CODE, /p/CODE, /tv/CODE — with optional username prefix
   const match = url.match(
-    /instagram\.com\/(reels?|p|tv)\/([A-Za-z0-9_-]{6,})/i
+    /instagram\.com\/(?:[\w.-]+\/)?(reels?|p|tv)\/([A-Za-z0-9_-]{6,})/i
   );
   if (!match) {
     return { valid: false, error: "Invalid Instagram URL format. Expected /reel/, /p/, or /tv/ path." };
