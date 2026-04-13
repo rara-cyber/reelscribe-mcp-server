@@ -11,7 +11,7 @@ import { register as registerGetCredits } from "./tools/getCredits.js";
 import { register as registerValidateUrl } from "./tools/validateUrl.js";
 
 const server = new McpServer({
-  name: "reelscribe",
+  name: "reelscribe.app",
   version: "1.0.0",
 });
 
