@@ -1,12 +1,12 @@
 # ReelScribe MCP Server
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants to [ReelScribe](https://www.reelscribe.app) — transcribe Instagram Reels, TikTok videos, and YouTube videos directly from Claude, Cursor, Windsurf, and other MCP-compatible clients.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants to [ReelScribe](https://reelscribe.app) — transcribe Instagram Reels, TikTok videos, and YouTube videos directly from Claude, Cursor, Windsurf, and other MCP-compatible clients.
 
 ## Setup
 
 ### 1. Get an API Key
 
-Sign up at [reelscribe.app](https://www.reelscribe.app/sign-up) (25 free credits) and generate an API key from your [API settings](https://www.reelscribe.app/api).
+Sign up at [reelscribe.app](https://reelscribe.app/sign-up) (25 free credits) and generate an API key from your [API settings](https://reelscribe.app/api).
 
 ### 2. Configure Your MCP Client
 
@@ -94,12 +94,12 @@ Add to your MCP client configuration:
 - **Agency**: $24.99/mo — 3,000 credits
 - **Enterprise**: $59.99/mo — 10,000 credits
 
-Each transcription costs 1 credit. [View pricing](https://www.reelscribe.app/pricing)
+Each transcription costs 1 credit. [View pricing](https://reelscribe.app/pricing)
 
 ## Links
 
-- [ReelScribe](https://www.reelscribe.app)
-- [API Documentation](https://www.reelscribe.app/api)
+- [ReelScribe](https://reelscribe.app)
+- [API Documentation](https://reelscribe.app/api)
 - [MCP Protocol](https://modelcontextprotocol.io)
 
 ## License

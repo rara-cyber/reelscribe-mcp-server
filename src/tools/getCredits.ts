@@ -33,7 +33,7 @@ export function register(server: McpServer) {
                         ? "unlimited"
                         : result.storageLimit,
                   },
-                  purchaseCreditsUrl: "https://www.reelscribe.app/pricing",
+                  purchaseCreditsUrl: "https://reelscribe.app/pricing",
                 },
                 null,
                 2

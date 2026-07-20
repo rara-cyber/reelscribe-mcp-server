@@ -3,7 +3,7 @@
  * All HTTP calls to the production API go through this module.
  */
 
-const API_BASE = "https://www.reelscribe.app/v1";
+const API_BASE = "https://reelscribe.app/v1";
 
 export interface ApiError {
   error: { code: string; message: string; status: number };
@@ -62,7 +62,7 @@ function getApiKey(): string {
   if (!key) {
     throw new Error(
       "REELSCRIBE_API_KEY environment variable is not set. " +
-        "Get your API key at https://www.reelscribe.app/api"
+        "Get your API key at https://reelscribe.app/api"
     );
   }
   return key;
