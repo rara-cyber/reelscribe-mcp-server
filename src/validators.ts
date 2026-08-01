@@ -5,7 +5,7 @@
 
 export interface ValidateResult {
   valid: boolean;
-  platform?: "instagram" | "tiktok" | "youtube";
+  platform?: "instagram" | "tiktok" | "youtube" | "facebook";
   normalizedUrl?: string;
   error?: string;
 }
@@ -156,6 +156,68 @@ function validateYouTube(url: string): ValidateResult {
 }
 
 /**
+ * Facebook video/reel.
+ *
+ * The API has accepted Facebook since before this client existed, but these
+ * validators did not — so validate_url called a supported URL unsupported and
+ * transcribe rejected it locally before the request was ever made.
+ */
+function validateFacebook(url: string): ValidateResult {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return { valid: false, error: "Invalid URL format" };
+  }
+
+  if (parsed.protocol !== "https:") {
+    return { valid: false, error: "Only HTTPS URLs are supported" };
+  }
+
+  const validHosts = [
+    "facebook.com",
+    "www.facebook.com",
+    "m.facebook.com",
+    "web.facebook.com",
+    "fb.watch",
+  ];
+  if (!validHosts.includes(parsed.hostname)) {
+    return { valid: false, error: "Not a Facebook URL" };
+  }
+
+  // Normalisation mirrors api/v1.js handleTranscribe: /reel/<id> canonicalises,
+  // anything else just loses the m./web. host prefix.
+  const reelMatch = url.match(/facebook\.com\/reel\/(\d+)/i);
+  if (reelMatch) {
+    return {
+      valid: true,
+      platform: "facebook",
+      normalizedUrl: `https://www.facebook.com/reel/${reelMatch[1]}/`,
+    };
+  }
+
+  if (parsed.hostname === "fb.watch" && parsed.pathname.length > 1) {
+    return { valid: true, platform: "facebook", normalizedUrl: url };
+  }
+
+  if (/facebook\.com\/(?:watch\/?\?v=\d+|[\w.-]+\/videos\/\d+)/i.test(url)) {
+    return {
+      valid: true,
+      platform: "facebook",
+      normalizedUrl: url.replace(
+        /^https:\/\/(?:m|web)\.facebook\.com\//i,
+        "https://www.facebook.com/"
+      ),
+    };
+  }
+
+  return {
+    valid: false,
+    error: "Invalid Facebook URL format. Expected /reel/, /watch?v=, /videos/, or an fb.watch link.",
+  };
+}
+
+/**
  * Validate a video URL and detect platform.
  * Returns platform, normalized URL, or error.
  */
@@ -186,8 +248,12 @@ export function validateUrl(url: string): ValidateResult {
   const ttResult = validateTikTok(trimmed);
   if (ttResult.valid) return ttResult;
 
+  // Try Facebook
+  const fbResult = validateFacebook(trimmed);
+  if (fbResult.valid) return fbResult;
+
   return {
     valid: false,
-    error: "Unsupported URL. Provide an Instagram, TikTok, or YouTube video URL.",
+    error: "Unsupported URL. Provide an Instagram, TikTok, YouTube, or Facebook video URL.",
   };
 }

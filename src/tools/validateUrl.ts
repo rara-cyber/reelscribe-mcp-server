@@ -5,7 +5,7 @@ import { validateUrl } from "../validators.js";
 export function register(server: McpServer) {
   server.tool(
     "validate_url",
-    "Check if a URL is a supported video platform (Instagram, TikTok, YouTube) without submitting for transcription. Returns the detected platform and normalized URL.",
+    "Check if a URL is a supported video platform (Instagram, TikTok, YouTube, Facebook) without submitting for transcription. Returns the detected platform and normalized URL.",
     {
       url: z.string().describe("URL to validate"),
     },
