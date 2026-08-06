@@ -12,7 +12,7 @@ import { register as registerValidateUrl } from "./tools/validateUrl.js";
 
 const server = new McpServer({
   name: "reelscribe.app",
-  version: "1.0.5",
+  version: "2.0.0",
 });
 
 // Register all tools

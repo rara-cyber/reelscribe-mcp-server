@@ -13,8 +13,8 @@ function sleep(ms: number) {
 export function register(server: McpServer) {
   server.tool(
     "transcribe_video",
-    "Submit a video URL for transcription and wait for the result. Supports Instagram Reels/Posts, TikTok videos, and YouTube videos/Shorts. Costs 1 credit. Returns the full transcription when complete.",
-    { url: z.string().describe("Video URL (Instagram, TikTok, or YouTube)") },
+    "Submit a video URL for transcription and wait for the result. Supports Instagram Reels/Posts, TikTok videos, YouTube videos/Shorts, and Facebook videos/Reels. Costs 1 credit. Returns the full transcription when complete. There is no storage quota, so a submission is never rejected for having too many saved transcriptions.",
+    { url: z.string().describe("Video URL (Instagram, TikTok, YouTube, or Facebook)") },
     async ({ url }) => {
       const validation = validateUrl(url);
       if (!validation.valid) {

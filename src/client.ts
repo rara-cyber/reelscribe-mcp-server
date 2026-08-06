@@ -44,17 +44,73 @@ export interface Transcription {
   errorType: string | null;
 }
 
+/** Rows this client asks for per page. Well under MAX_PAGE_SIZE on purpose. */
+export const DEFAULT_PAGE_SIZE = 20;
+
+/**
+ * Largest page GET /v1/transcriptions will serve.
+ *
+ * The API clamps rather than erroring, so asking for more is safe — this bound
+ * exists so a tool schema can reject an obviously wrong number up front.
+ */
+export const MAX_PAGE_SIZE = 200;
+
 export interface TranscriptionList {
   transcriptions: Transcription[];
+  /**
+   * The number of rows in THIS PAGE — never a library total.
+   *
+   * GET /v1/transcriptions became cursor-paginated on 2026-07-31, and the API
+   * deliberately does not compute a library total: doing so costs the read the
+   * pagination exists to avoid (api/v1.js `handleTranscriptions`). Before that
+   * date the endpoint returned everything, so `total` and "how many do I have"
+   * happened to coincide — they no longer do.
+   *
+   * Nothing in this package reads it. Counts are derived from
+   * `transcriptions.length`, which cannot silently change meaning.
+   */
   total: number;
+  /** Pass back as `cursor` for the next page; null when the list is exhausted. */
+  nextCursor?: string | null;
+  /** True when further pages exist. Absent on the `?url=` search response. */
+  hasMore?: boolean;
+}
+
+/** How long this account's transcriptions are kept. */
+export type RetentionMode =
+  /** Subscription active — nothing is auto-deleted. */
+  | "unlimited"
+  /** Never subscribed — each transcription expires `retentionDays` after creation. */
+  | "rolling"
+  /** Subscription ended — the whole library goes at `deletesAfter`. */
+  | "lapsing";
+
+export interface Retention {
+  mode: RetentionMode;
+  /** Epoch ms the library is deleted. `lapsing` only; null otherwise. */
+  deletesAfter: number | null;
+  /** Rolling-window length in days. */
+  retentionDays: number;
+  /** Epoch ms grandfather floor — nothing created before this is auto-deleted. */
+  policyDate: number;
 }
 
 export interface Credits {
   credits: number;
   tier: string;
   subscriptionStatus: string | null;
+  /**
+   * Completed transcriptions. A bounded probe, not a guaranteed exact count —
+   * see `storageUsedCapped`.
+   */
   storageUsed: number;
-  storageLimit: number;
+  /** True when the real number of completed transcriptions exceeds `storageUsed`. */
+  storageUsedCapped: boolean;
+  retention: Retention;
+  // `storageLimit` is still on the wire but is deliberately not read here. Per-tier
+  // count caps were retired on 2026-07-31 and the API now hardcodes -1 ("no limit")
+  // for every tier; storage is bounded by time instead. `retention` is the real
+  // constraint, so reporting a limit at all would only mislead.
 }
 
 function getApiKey(): string {
@@ -110,9 +166,13 @@ export async function getTranscription(params: {
 
 export async function listTranscriptions(params?: {
   status?: string;
+  cursor?: string;
+  limit?: number;
 }): Promise<TranscriptionList> {
   const searchParams = new URLSearchParams();
   if (params?.status) searchParams.set("status", params.status);
+  if (params?.cursor) searchParams.set("cursor", params.cursor);
+  if (params?.limit) searchParams.set("limit", String(params.limit));
   const qs = searchParams.toString();
   return request<TranscriptionList>(`/transcriptions${qs ? `?${qs}` : ""}`);
 }
