@@ -16,7 +16,8 @@
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
-    "test": "bun test tests"
+    "test": "bun test tests",
+    "prebuild": "rm -rf dist"
   },
   "keywords": [
     "mcp",
