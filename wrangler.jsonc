@@ -3,7 +3,7 @@
   "name": "reelscribe-mcp",
   "main": "src/worker.ts",
   "compatibility_date": "2026-10-09",
-  "routes": [{ "pattern": "mcp.reelscribe.app", "custom_domain": true }],
+  "workers_dev": true,
   "vars": { "CLERK_ISSUER": "https://clerk.reelscribe.app" },
   "observability": { "enabled": true }
 }

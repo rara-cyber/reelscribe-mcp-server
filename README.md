@@ -6,7 +6,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that c
 
 ### Hosted connector (Cloudflare Workers)
 
-The planned endpoint is `https://mcp.reelscribe.app/mcp`; deployment requires
+The endpoint is `https://reelscribe-mcp.sian-agency.workers.dev/mcp`; account sign-in requires
 the OAuth and Cloudflare setup below. Once deployed, add it as a remote
 connector in Claude or as an MCP connection in ChatGPT developer mode, then
 sign in to your ReelScribe account and approve access. Directory publication is
@@ -26,14 +26,17 @@ returns the existing transcript. Hosted tools do not include purchase links.
    CIMD client onboarding, require S256 PKCE, and set the default scopes to
    `reelscribe:mcp`. Keep opaque access tokens enabled. Allow the intended
    clients to request the custom scope; enable DCR only for clients needing it.
-3. Confirm the selected Cloudflare account owns `reelscribe.app` and
-   authenticate Wrangler with permission to deploy Workers and attach the
-   custom domain.
+3. Authenticate Wrangler with permission to deploy Workers in the SIÁN account.
    If Wrangler lists multiple accounts, set `CLOUDFLARE_ACCOUNT_ID` to that account.
 4. Run `bun run typecheck`, `bun test`, `bun run worker:build`, then
    `bun run worker:deploy`.
 5. Verify `/health`, the public OAuth metadata, an unauthenticated `/mcp` 401
    challenge, and the complete sign-in and transcription flow in both clients.
+
+The initial deployment uses `workers.dev` because the authenticated Cloudflare
+account cannot access the `reelscribe.app` zone. After domain access is available,
+add the custom-domain route for `mcp.reelscribe.app` in `wrangler.jsonc`, update
+`RESOURCE` in `src/worker.ts`, and verify OAuth discovery again before switching clients.
 
 The Worker holds no shared user API key or Clerk secret. It forwards each
 caller's token to ReelScribe's API, which verifies it with Clerk and resolves

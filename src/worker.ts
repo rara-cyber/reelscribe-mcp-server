@@ -6,8 +6,8 @@ interface Env {
   CLERK_ISSUER: string;
 }
 
-const RESOURCE = "https://mcp.reelscribe.app/mcp";
-const METADATA = "https://mcp.reelscribe.app/.well-known/oauth-protected-resource/mcp";
+const RESOURCE = "https://reelscribe-mcp.sian-agency.workers.dev/mcp";
+const METADATA = new URL("/.well-known/oauth-protected-resource/mcp", RESOURCE).href;
 const HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, GET, DELETE, OPTIONS",

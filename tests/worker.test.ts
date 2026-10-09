@@ -19,7 +19,7 @@ function request(method: string, params: unknown, token?: string) {
 
 test("OAuth discovery is public and missing credentials receive a challenge", async () => {
   const discovery = await worker.fetch(new Request("https://mcp.reelscribe.app/.well-known/oauth-protected-resource/mcp"), env);
-  expect(await discovery.json()).toMatchObject({ resource: "https://mcp.reelscribe.app/mcp", authorization_servers: [env.CLERK_ISSUER], scopes_supported: ["reelscribe:mcp"] });
+  expect(await discovery.json()).toMatchObject({ resource: "https://reelscribe-mcp.sian-agency.workers.dev/mcp", authorization_servers: [env.CLERK_ISSUER], scopes_supported: ["reelscribe:mcp"] });
   const response = await worker.fetch(request("tools/list", {}), env);
   expect(response.status).toBe(401);
   expect(response.headers.get("WWW-Authenticate")).toContain("oauth-protected-resource/mcp");
