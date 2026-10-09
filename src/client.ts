@@ -124,66 +124,73 @@ function getApiKey(): string {
   return key;
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const url = `${API_BASE}${path}`;
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${getApiKey()}`,
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+export function createApiClient(getToken: () => string) {
+  async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    const url = `${API_BASE}${path}`;
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
 
-  const body = await res.json();
+    const body = await res.json();
 
-  if (!res.ok) {
-    const err = body as ApiError;
-    throw new Error(
-      err.error?.message || `API request failed with status ${res.status}`
-    );
+    if (!res.ok) {
+      const err = body as ApiError;
+      throw new Error(
+        err.error?.message || `API request failed with status ${res.status}`
+      );
+    }
+
+    return body as T;
   }
 
-  return body as T;
+  async function transcribe(url: string): Promise<TranscribeResult> {
+    return request<TranscribeResult>("/transcribe", {
+      method: "POST",
+      body: JSON.stringify({ url }),
+    });
+  }
+
+  async function getTranscription(params: {
+    id?: string;
+    requestId?: string;
+  }): Promise<Transcription> {
+    const searchParams = new URLSearchParams();
+    if (params.id) searchParams.set("id", params.id);
+    if (params.requestId) searchParams.set("requestId", params.requestId);
+    return request<Transcription>(`/transcriptions?${searchParams}`);
+  }
+
+  async function listTranscriptions(params?: {
+    status?: string;
+    cursor?: string;
+    limit?: number;
+  }): Promise<TranscriptionList> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.cursor) searchParams.set("cursor", params.cursor);
+    if (params?.limit) searchParams.set("limit", String(params.limit));
+    const qs = searchParams.toString();
+    return request<TranscriptionList>(`/transcriptions${qs ? `?${qs}` : ""}`);
+  }
+
+  async function searchTranscriptionsByUrl(
+    url: string
+  ): Promise<TranscriptionList> {
+    const searchParams = new URLSearchParams({ url });
+    return request<TranscriptionList>(`/transcriptions?${searchParams}`);
+  }
+
+  async function getCredits(): Promise<Credits> {
+    return request<Credits>("/credits");
+  }
+
+  return { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits };
 }
 
-export async function transcribe(url: string): Promise<TranscribeResult> {
-  return request<TranscribeResult>("/transcribe", {
-    method: "POST",
-    body: JSON.stringify({ url }),
-  });
-}
-
-export async function getTranscription(params: {
-  id?: string;
-  requestId?: string;
-}): Promise<Transcription> {
-  const searchParams = new URLSearchParams();
-  if (params.id) searchParams.set("id", params.id);
-  if (params.requestId) searchParams.set("requestId", params.requestId);
-  return request<Transcription>(`/transcriptions?${searchParams}`);
-}
-
-export async function listTranscriptions(params?: {
-  status?: string;
-  cursor?: string;
-  limit?: number;
-}): Promise<TranscriptionList> {
-  const searchParams = new URLSearchParams();
-  if (params?.status) searchParams.set("status", params.status);
-  if (params?.cursor) searchParams.set("cursor", params.cursor);
-  if (params?.limit) searchParams.set("limit", String(params.limit));
-  const qs = searchParams.toString();
-  return request<TranscriptionList>(`/transcriptions${qs ? `?${qs}` : ""}`);
-}
-
-export async function searchTranscriptionsByUrl(
-  url: string
-): Promise<TranscriptionList> {
-  const searchParams = new URLSearchParams({ url });
-  return request<TranscriptionList>(`/transcriptions?${searchParams}`);
-}
-
-export async function getCredits(): Promise<Credits> {
-  return request<Credits>("/credits");
-}
+export type ApiClient = ReturnType<typeof createApiClient>;
+export const { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits } = createApiClient(getApiKey);

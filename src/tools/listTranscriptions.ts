@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import * as api from "../client.js";
+import * as defaultApi from "../client.js";
+import type { ApiClient } from "../client.js";
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "../client.js";
 import type { Transcription, TranscriptionList } from "../client.js";
 
@@ -116,7 +117,7 @@ export function buildListPayload(
   };
 }
 
-export function register(server: McpServer) {
+export function register(server: McpServer, api: ApiClient = defaultApi) {
   server.tool(
     "list_transcriptions",
     `List ONE PAGE of your transcriptions, newest first (default ${DEFAULT_PAGE_SIZE}, max ${MAX_PAGE_SIZE}). ` +
@@ -146,6 +147,7 @@ export function register(server: McpServer) {
           `Rows per page (default ${DEFAULT_PAGE_SIZE}, max ${MAX_PAGE_SIZE})`
         ),
     },
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ status, cursor, limit }) => {
       try {
         const result = await api.listTranscriptions({

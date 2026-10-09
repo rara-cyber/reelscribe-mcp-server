@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import * as api from "../client.js";
+import * as defaultApi from "../client.js";
+import type { ApiClient } from "../client.js";
 import { validateUrl } from "../validators.js";
 
 const POLL_INTERVAL_MS = 3_000;
@@ -10,11 +11,12 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function register(server: McpServer) {
+export function register(server: McpServer, api: ApiClient = defaultApi, waitForResult = true) {
   server.tool(
     "transcribe_video",
-    "Submit a video URL for transcription and wait for the result. Supports Instagram Reels/Posts, TikTok videos, YouTube videos/Shorts, and Facebook videos/Reels. Costs 1 credit. Returns the full transcription when complete. There is no storage quota, so a submission is never rejected for having too many saved transcriptions.",
+    (waitForResult ? "Submit a video URL for transcription and wait for the result. " : "Submit a video URL for transcription. Returns a requestId; use get_transcription to retrieve the result. ") + " Supports Instagram Reels/Posts, TikTok videos, YouTube videos/Shorts, and Facebook videos/Reels. Costs 1 credit. There is no storage quota, so a submission is never rejected for having too many saved transcriptions.",
     { url: z.string().describe("Video URL (Instagram, TikTok, YouTube, or Facebook)") },
+    { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
     async ({ url }) => {
       const validation = validateUrl(url);
       if (!validation.valid) {
@@ -50,6 +52,10 @@ export function register(server: McpServer) {
               },
             ],
           };
+        }
+
+        if (!waitForResult) {
+          return { content: [{ type: "text" as const, text: JSON.stringify({ ...result, platform: validation.platform, message: "Use get_transcription with this requestId to retrieve the transcript." }) }] };
         }
 
         // Poll until completed, failed, or timeout

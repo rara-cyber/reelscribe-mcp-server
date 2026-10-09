@@ -4,6 +4,44 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that c
 
 ## Setup
 
+### Hosted connector (Cloudflare Workers)
+
+The planned endpoint is `https://mcp.reelscribe.app/mcp`; deployment requires
+the OAuth and Cloudflare setup below. Once deployed, add it as a remote
+connector in Claude or as an MCP connection in ChatGPT developer mode, then
+sign in to your ReelScribe account and approve access. Directory publication is
+a separate review process.
+
+Hosted transcription returns a `requestId` immediately. Use `get_transcription`
+with that ID to retrieve the transcript after processing; submitting a duplicate
+returns the existing transcript. Hosted tools do not include purchase links.
+
+#### Deploying
+
+1. Deploy the accompanying ReelScribe API OAuth change, including the Convex
+   `includeRetention` response on `/admin/get-user-by-clerk-id`.
+2. In the production Clerk instance, create and advertise the custom scope
+   `reelscribe:mcp`, with consent text explaining permission to read transcripts
+   and credit balance, and submit transcriptions that spend credits. Enable
+   CIMD client onboarding, require S256 PKCE, and set the default scopes to
+   `reelscribe:mcp`. Keep opaque access tokens enabled. Allow the intended
+   clients to request the custom scope; enable DCR only for clients needing it.
+3. Confirm the selected Cloudflare account owns `reelscribe.app` and
+   authenticate Wrangler with permission to deploy Workers and attach the
+   custom domain.
+   If Wrangler lists multiple accounts, set `CLOUDFLARE_ACCOUNT_ID` to that account.
+4. Run `bun run typecheck`, `bun test`, `bun run worker:build`, then
+   `bun run worker:deploy`.
+5. Verify `/health`, the public OAuth metadata, an unauthenticated `/mcp` 401
+   challenge, and the complete sign-in and transcription flow in both clients.
+
+The Worker holds no shared user API key or Clerk secret. It forwards each
+caller's token to ReelScribe's API, which verifies it with Clerk and resolves
+only that token's user. OAuth access permits reads and transcription submission;
+deletion and account-setting writes remain unavailable through this scope.
+
+Local stdio setup remains available below.
+
 ### 1. Get an API Key
 
 Sign up at [reelscribe.app](https://reelscribe.app/sign-up) (25 free credits) and generate an API key from your [API settings](https://reelscribe.app/api).

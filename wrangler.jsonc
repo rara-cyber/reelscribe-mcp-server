@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "reelscribe-mcp",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-09",
+  "routes": [{ "pattern": "mcp.reelscribe.app", "custom_domain": true }],
+  "vars": { "CLERK_ISSUER": "https://clerk.reelscribe.app" },
+  "observability": { "enabled": true }
+}
