@@ -9,6 +9,7 @@ export function register(server: McpServer) {
     {
       url: z.string().describe("URL to validate"),
     },
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     async ({ url }) => {
       const result = validateUrl(url);
       return {

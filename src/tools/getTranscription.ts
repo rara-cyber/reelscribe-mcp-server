@@ -1,8 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import * as api from "../client.js";
+import * as defaultApi from "../client.js";
+import type { ApiClient } from "../client.js";
 
-export function register(server: McpServer) {
+export function register(server: McpServer, api: ApiClient = defaultApi) {
   server.tool(
     "get_transcription",
     "Get a transcription by its ID or requestId. Returns the full transcription text when completed, or status/error info if still processing or failed.",
@@ -13,6 +14,7 @@ export function register(server: McpServer) {
         .optional()
         .describe("Request ID (from transcribe_video result)"),
     },
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ id, requestId }) => {
       if (!id && !requestId) {
         return {

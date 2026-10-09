@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as api from "../client.js";
+import * as defaultApi from "../client.js";
+import type { ApiClient } from "../client.js";
 import type { Credits, Retention } from "../client.js";
 
 const tierNames: Record<string, string> = {
@@ -79,7 +80,7 @@ export function buildCreditsPayload(result: Credits) {
   };
 }
 
-export function register(server: McpServer) {
+export function register(server: McpServer, api: ApiClient = defaultApi, showPurchaseLink = true) {
   server.tool(
     "get_credits",
     "Check your ReelScribe credit balance, subscription tier, how many completed " +
@@ -89,6 +90,7 @@ export function register(server: McpServer) {
       "is a bounded count: when `library.isCapped` is true the real number is " +
       "higher, so quote it as \"N+\".",
     {},
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async () => {
       try {
         const result = await api.getCredits();
@@ -97,7 +99,7 @@ export function register(server: McpServer) {
           content: [
             {
               type: "text" as const,
-              text: JSON.stringify(buildCreditsPayload(result), null, 2),
+              text: JSON.stringify({ ...buildCreditsPayload(result), ...(!showPurchaseLink ? { tier: result.tier, purchaseCreditsUrl: undefined } : {}) }, null, 2),
             },
           ],
         };

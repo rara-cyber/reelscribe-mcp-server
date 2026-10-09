@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import * as api from "../client.js";
+import * as defaultApi from "../client.js";
+import type { ApiClient } from "../client.js";
 import type { TranscriptionList } from "../client.js";
 
 /**
@@ -49,7 +50,7 @@ export function buildSearchPayload(result: TranscriptionList) {
   };
 }
 
-export function register(server: McpServer) {
+export function register(server: McpServer, api: ApiClient = defaultApi) {
   server.tool(
     "search_transcriptions",
     "Find transcriptions whose original video URL contains the given string. " +
@@ -62,6 +63,7 @@ export function register(server: McpServer) {
     {
       url: z.string().describe("The video URL to search for"),
     },
+    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ url }) => {
       try {
         const result = await api.searchTranscriptionsByUrl(url);
