@@ -72,7 +72,12 @@ test("stateless initialization and tool discovery work across requests", async (
   globalThis.fetch = (async (_input: RequestInfo | URL) => Response.json({ authenticated: true })) as typeof fetch;
   const initialized = await worker.fetch(request("initialize", { protocolVersion: "2025-03-26", capabilities: {}, clientInfo: { name: "test", version: "1" } }, "alice"), env);
   expect(initialized.status).toBe(200);
-  expect((await initialized.json() as any).result.serverInfo.name).toBe("reelscribe.app");
+  expect((await initialized.json() as any).result.serverInfo).toMatchObject({
+    name: "reelscribe.app",
+    title: "ReelScribe",
+    websiteUrl: "https://reelscribe.app",
+    icons: [{ src: "https://reelscribe.app/favicon-512x512.png", mimeType: "image/png", sizes: ["512x512"] }],
+  });
   const listed = await worker.fetch(request("tools/list", {}, "alice"), env);
   const tools = (await listed.json() as any).result.tools;
   expect(tools.map((tool: any) => tool.name).sort()).toEqual(["get_credits", "get_transcription", "list_transcriptions", "search_transcriptions", "transcribe_video", "validate_url"]);
