@@ -15,9 +15,12 @@ export function register(server: McpServer, api: ApiClient = defaultApi, waitFor
   server.tool(
     "transcribe_video",
     (waitForResult ? "Submit a video URL for transcription and wait for the result. " : "Submit a video URL for transcription. Returns a requestId while the job processes. ") + "Supports Instagram Reels/Posts, TikTok videos, YouTube videos/Shorts, and Facebook videos/Reels. New jobs cost 1 credit. Existing matching transcripts may be reused without another charge. There is no storage quota.",
-    { url: z.string().describe("Video URL (Instagram, TikTok, YouTube, or Facebook)") },
+    {
+      url: z.string().describe("Video URL (Instagram, TikTok, YouTube, or Facebook)"),
+      includeComments: z.boolean().optional().describe("Also extract top comments for Instagram, TikTok and YouTube, with pinned/creator comments first where available; not the full thread. Defaults to false. Facebook is unsupported. Total cost remains 1 credit; existing transcripts are reused without new comment extraction."),
+    },
     { title: "Transcribe video", readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
-    async ({ url }) => {
+    async ({ url, includeComments = false }) => {
       const validation = validateUrl(url);
       if (!validation.valid) {
         return {
@@ -35,7 +38,10 @@ export function register(server: McpServer, api: ApiClient = defaultApi, waitFor
       }
 
       try {
-        const result = await api.transcribe(validation.normalizedUrl!);
+        if (includeComments && validation.platform === "facebook") {
+          return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: true, code: "INVALID_OPTION", message: "Comment extraction supports Instagram, TikTok and YouTube; Facebook is unsupported." }) }] };
+        }
+        const result = await api.transcribe(validation.normalizedUrl!, includeComments);
 
         // If duplicate, fetch and return the existing transcription directly
         if (result.duplicate && result.transcription?.id) {
@@ -45,7 +51,7 @@ export function register(server: McpServer, api: ApiClient = defaultApi, waitFor
               {
                 type: "text" as const,
                 text: JSON.stringify(
-                  { ...existing, platform: validation.platform, duplicate: true },
+                  { ...existing, platform: validation.platform, duplicate: true, ...(includeComments && { note: "Saved transcript and comments reused; no new comments were extracted." }) },
                   null,
                   2
                 ),

@@ -83,6 +83,7 @@ function row(i: number, transcriptChars = 4_000): Transcription {
     caption: null,
     hashtags: null,
     mentions: null,
+    comments: null,
     owner: "someone",
     duration: 30,
     stats: null,
