@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "reelscribe": {
+      "type": "streamable-http",
+      "url": "https://reelscribe-mcp.sian-agency.workers.dev/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "cimd"
+            },
+            "baseScopes": [
+              "reelscribe:mcp"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
