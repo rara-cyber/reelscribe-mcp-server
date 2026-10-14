@@ -8,13 +8,13 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
     "get_transcription",
     "Get a transcription by its ID or requestId. Returns the full transcription text when completed, or status/error info if still processing or failed.",
     {
-      id: z.string().optional().describe("Transcription ID (from list results)"),
+      id: z.string().optional().describe("Transcription ID"),
       requestId: z
         .string()
         .optional()
-        .describe("Request ID (from transcribe_video result)"),
+        .describe("Transcription job request ID"),
     },
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    { title: "Get transcription", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ id, requestId }) => {
       if (!id && !requestId) {
         return {

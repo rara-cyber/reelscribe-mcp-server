@@ -88,9 +88,9 @@ export function register(server: McpServer, api: ApiClient = defaultApi, showPur
       "costs 1 credit. There is no storage quota — a library is bounded by time " +
       "(see `retention`), not by a count limit. `library.completedTranscriptions` " +
       "is a bounded count: when `library.isCapped` is true the real number is " +
-      "higher, so quote it as \"N+\".",
+      "higher than the returned count.",
     {},
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    { title: "Check credits and retention", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async () => {
       try {
         const result = await api.getCredits();

@@ -82,6 +82,24 @@ test("stateless initialization and tool discovery work across requests", async (
   const tools = (await listed.json() as any).result.tools;
   expect(tools.map((tool: any) => tool.name).sort()).toEqual(["get_credits", "get_transcription", "list_transcriptions", "search_transcriptions", "transcribe_video", "validate_url"]);
   expect(tools.find((tool: any) => tool.name === "transcribe_video").annotations.destructiveHint).toBe(true);
+  for (const tool of tools) {
+    expect(tool.annotations.title).toBeTruthy();
+    expect(tool.annotations.readOnlyHint).toBeDefined();
+    expect(tool.annotations.destructiveHint).toBeDefined();
+    expect(tool.description).not.toMatch(/never present|so quote|use get_transcription|or get_credits/i);
+    for (const other of tools.filter((other: any) => other.name !== tool.name)) {
+      expect(tool.description).not.toContain(other.name);
+    }
+  }
   const invalid = await worker.fetch(request("tools/call", { name: "transcribe_video", arguments: { url: "https://evil.example/video" } }, "alice"), env);
   expect(JSON.parse((await invalid.json() as any).result.content[0].text).code).toBe("INVALID_URL");
+});
+
+test("branded alias discovery identifies the branded resource without changing the original endpoint", async () => {
+  const discovery = await worker.fetch(new Request("https://reelscribe-mcp.sian-agency.workers.dev/.well-known/oauth-protected-resource/mcp?branded=1"), env);
+  expect(await discovery.json()).toMatchObject({ resource: "https://reelscribe.app/api/mcp" });
+  const brandedRequest = new Request("https://reelscribe-mcp.sian-agency.workers.dev/mcp?branded=1", request("tools/list", {}));
+  const response = await worker.fetch(brandedRequest, env);
+  expect(response.status).toBe(401);
+  expect(response.headers.get("WWW-Authenticate")).toContain("oauth-protected-resource/mcp?branded=1");
 });

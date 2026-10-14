@@ -63,7 +63,7 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
     {
       url: z.string().describe("The video URL to search for"),
     },
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    { title: "Search transcriptions by URL", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ url }) => {
       try {
         const result = await api.searchTranscriptionsByUrl(url);

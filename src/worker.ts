@@ -7,6 +7,7 @@ interface Env {
 }
 
 const RESOURCE = "https://reelscribe-mcp.sian-agency.workers.dev/mcp";
+const BRANDED_RESOURCE = "https://reelscribe.app/api/mcp";
 const METADATA = new URL("/.well-known/oauth-protected-resource/mcp", RESOURCE).href;
 const HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -22,11 +23,15 @@ function response(body: unknown, status = 200, headers: Record<string, string> =
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const path = new URL(request.url).pathname;
+    const url = new URL(request.url);
+    const path = url.pathname;
+    const branded = url.searchParams.get("branded") === "1";
+    const resource = branded ? BRANDED_RESOURCE : RESOURCE;
+    const metadata = branded ? `${METADATA}?branded=1` : METADATA;
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: HEADERS });
     if (path === "/health") return response({ healthy: true });
     if (path === "/.well-known/oauth-protected-resource" || path === "/.well-known/oauth-protected-resource/mcp") {
-      return response({ resource: RESOURCE, authorization_servers: [env.CLERK_ISSUER], scopes_supported: ["reelscribe:mcp"], bearer_methods_supported: ["header"], resource_name: "ReelScribe", resource_documentation: "https://reelscribe.app/mcp" });
+      return response({ resource, authorization_servers: [env.CLERK_ISSUER], scopes_supported: ["reelscribe:mcp"], bearer_methods_supported: ["header"], resource_name: "ReelScribe", resource_documentation: "https://reelscribe.app/mcp" });
     }
     if (path !== "/mcp") return response({ error: "not_found" }, 404);
     const origin = request.headers.get("Origin");
@@ -35,7 +40,7 @@ export default {
     }
 
     const token = request.headers.get("Authorization")?.match(/^Bearer\s+(\S+)$/i)?.[1];
-    const challenge = () => response({ error: "unauthorized" }, 401, { "WWW-Authenticate": `Bearer resource_metadata="${METADATA}", scope="reelscribe:mcp"` });
+    const challenge = () => response({ error: "unauthorized" }, 401, { "WWW-Authenticate": `Bearer resource_metadata="${metadata}", scope="reelscribe:mcp"` });
     if (!token || token.length > 8192) return challenge();
 
     // Validate before tools/list or initialize, too; the API enforces Clerk scope and ownership.

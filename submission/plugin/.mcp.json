@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "reelscribe": {
-      "url": "https://reelscribe-mcp.sian-agency.workers.dev/mcp",
+      "url": "https://reelscribe.app/api/mcp",
       "extensions": {
         "com.openai": {
           "auth": {
