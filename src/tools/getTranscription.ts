@@ -6,7 +6,7 @@ import type { ApiClient } from "../client.js";
 export function register(server: McpServer, api: ApiClient = defaultApi) {
   server.tool(
     "get_transcription",
-    "Get a transcription by its ID or requestId. Returns the full transcription text when completed, or status/error info if still processing or failed.",
+    "Get a transcription by its ID or requestId. Returns the full transcription text and any extracted comments when completed, or status/error info if still processing or failed.",
     {
       id: z.string().optional().describe("Transcription ID"),
       requestId: z

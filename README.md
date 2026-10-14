@@ -105,12 +105,29 @@ Add to your MCP client configuration:
 
 | Tool | Description |
 |------|-------------|
-| `transcribe_video` | Submit a video URL for transcription (1 credit). Waits for and returns the transcript. |
+| `transcribe_video` | Submit a video URL (1 credit). Optional `includeComments` for Instagram, TikTok and YouTube. Hosted server returns a job ID; local server waits for the result. |
 | `get_transcription` | Get a transcription by ID or requestId. Returns full transcript text. |
 | `list_transcriptions` | List **one page** of your transcriptions (default 20, max 200), newest first. Optional status filter. |
 | `search_transcriptions` | Find transcriptions by the original video URL, within a bounded recent window. |
 | `get_credits` | Check credit balance, subscription tier, stored transcription count, and retention. |
 | `validate_url` | Check if a URL is supported without submitting. |
+
+### Comment extraction
+
+Set `includeComments: true` on `transcribe_video` to request a selection of top
+comments alongside a new Instagram, TikTok or YouTube transcription. It is off
+by default and the total cost remains 1 credit. Pinned and creator comments are
+prioritized where available; YouTube does not expose a pinned flag. Facebook
+comment extraction is unsupported. This is not a full comment-thread export.
+
+Completed results include a `comments` array with `text`, `author`, `likes`,
+`isPinned` and `isCreator`; it is `null` when no comments were returned.
+`stats.comments` is the video's total comment count, separate from those rows.
+Existing matching transcripts are reused as-is, without adding new comments.
+
+```json
+{ "url": "https://www.youtube.com/watch?v=vXUPEow4Itw", "includeComments": true }
+```
 
 ### Pagination
 
@@ -162,6 +179,13 @@ auto-deleted.
 Each transcription costs 1 credit. [View pricing](https://reelscribe.app/pricing)
 
 ## Changelog
+
+### 2.1.0
+
+- Optional `includeComments` on `transcribe_video` for Instagram, TikTok and
+  YouTube, forwarded through the existing API without an extra credit charge.
+- Typed comment rows in retrieved transcripts; unsupported Facebook requests
+  are rejected before creating a job.
 
 ### 2.0.0
 

@@ -34,6 +34,7 @@ export interface Transcription {
   caption: string | null;
   hashtags: string[] | null;
   mentions: string[] | null;
+  comments: Array<{ text: string; author: string; likes: number; isPinned: boolean; isCreator: boolean }> | null;
   owner: string | null;
   duration: number | null;
   stats: { likes: number | null; views: number | null; comments: number | null } | null;
@@ -148,10 +149,10 @@ export function createApiClient(getToken: () => string) {
     return body as T;
   }
 
-  async function transcribe(url: string): Promise<TranscribeResult> {
+  async function transcribe(url: string, includeComments = false): Promise<TranscribeResult> {
     return request<TranscribeResult>("/transcribe", {
       method: "POST",
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url, ...(includeComments && { includeComments: true }) }),
     });
   }
 
