@@ -8,7 +8,13 @@ import { register as credits } from "./tools/getCredits.js";
 import { register as validate } from "./tools/validateUrl.js";
 
 export function createServer(api?: ApiClient, hosted = false) {
-  const server = new McpServer({ name: "reelscribe.app", version: "2.0.0" });
+  const server = new McpServer({
+    name: "reelscribe.app",
+    title: "ReelScribe",
+    version: "2.0.0",
+    websiteUrl: "https://reelscribe.app",
+    icons: [{ src: "https://reelscribe.app/favicon-512x512.png", mimeType: "image/png", sizes: ["512x512"] }],
+  });
   transcribe(server, api, !hosted);
   get(server, api);
   list(server, api);

@@ -1,0 +1,106 @@
+{
+  "name": "reelscribe",
+  "version": "2.0.0",
+  "description": "Transcribe supported social videos and work with your own saved ReelScribe transcripts.",
+  "author": {
+    "name": "SIÁN OÜ",
+    "email": "support@reelscribe.app",
+    "url": "https://reelscribe.app"
+  },
+  "homepage": "https://reelscribe.app/mcp",
+  "repository": "https://github.com/rara-cyber/reelscribe-mcp-server",
+  "license": "MIT",
+  "keywords": [
+    "transcription",
+    "video",
+    "reelscribe",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "ReelScribe",
+    "shortDescription": "Transcribe videos in your chat",
+    "longDescription": "Connect your ReelScribe account to transcribe Instagram, TikTok, YouTube, and Facebook video URLs. Read saved transcripts, browse a page of your history, search recent history by original video URL, validate supported URLs, and check credits and retention. New transcription jobs spend 1 credit and return a request ID for retrieval after processing. Reading transcripts, checking credits, and URL validation do not spend credits. Access is limited to your own account. The connector cannot delete transcripts, change settings, or manage billing. Private, removed, restricted, or unsupported videos may fail. URL search covers a bounded recent-history window. A ReelScribe account is required.",
+    "developerName": "SIÁN OÜ",
+    "category": "Productivity",
+    "capabilities": [
+      "Transcribe supported videos",
+      "Read saved transcripts",
+      "Search recent video URLs",
+      "Check credits and retention",
+      "Validate video URLs"
+    ],
+    "websiteURL": "https://reelscribe.app/mcp",
+    "supportURL": "https://reelscribe.app/contact",
+    "privacyPolicyURL": "https://reelscribe.app/privacy",
+    "termsOfServiceURL": "https://reelscribe.app/terms",
+    "defaultPrompt": [
+      "Show my credit balance and latest completed transcriptions.",
+      "Validate this video URL without spending credits.",
+      "Summarize the full text of my latest saved transcript."
+    ],
+    "brandColor": "#9333EA",
+    "composerIcon": "./assets/logo.png",
+    "logo": "./assets/logo.png"
+  },
+  "extensions": {
+    "com.openai": {
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Check credits and validate a URL without starting a job",
+              "prompt": "Show my ReelScribe credit balance and validate https://www.youtube.com/watch?v=jNQXAC9IVRw. Do not submit a transcription.",
+              "tools_triggered": "get_credits, validate_url",
+              "expected_behavior": "Return the connected account’s credit balance and a supported YouTube validation result. No job is created and no credits are spent."
+            },
+            {
+              "description": "Submit a video and retrieve its completed transcript",
+              "prompt": "I authorize spending 1 ReelScribe credit to transcribe https://www.youtube.com/watch?v=jNQXAC9IVRw. Submit it and retrieve the completed transcript.",
+              "tools_triggered": "transcribe_video, get_transcription",
+              "expected_behavior": "Submit the supported URL, return and preserve its requestId, and retrieve the job. Report pending status honestly until completion. Return the actual completed transcript. An existing matching result may be reused without another charge."
+            },
+            {
+              "description": "Browse a bounded page of saved transcripts",
+              "prompt": "Show my five latest completed ReelScribe transcriptions. Do not start a new job.",
+              "tools_triggered": "list_transcriptions",
+              "expected_behavior": "Return at most five accessible completed entries with preview text. Explain any additional pages using the returned cursor; do not call the page length the library total."
+            },
+            {
+              "description": "Find a saved transcript by its original URL",
+              "prompt": "Find my existing ReelScribe transcript for https://www.youtube.com/watch?v=jNQXAC9IVRw without submitting it again.",
+              "tools_triggered": "search_transcriptions",
+              "expected_behavior": "Return the matching sample transcript when it is within the bounded recent-history window. If absent, describe the searched window rather than claiming it was never transcribed. Spend no credits."
+            },
+            {
+              "description": "Read a full saved transcript before summarizing",
+              "prompt": "Retrieve the full transcript of my latest completed ReelScribe video and summarize its main points. Do not start a new job.",
+              "tools_triggered": "list_transcriptions, get_transcription",
+              "expected_behavior": "Retrieve a completed sample entry from the account and fetch its full text before summarizing. If the library is empty, explain that no completed transcript is available. Spend no credits."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Unsupported deletion: no deletion tool is exposed; explain the limitation without changing data.",
+              "prompt": "Delete all of my ReelScribe transcripts."
+            },
+            {
+              "description": "Unsupported platform: reject the unsupported URL and do not create a job or spend credits.",
+              "prompt": "Transcribe https://example.com/not-a-supported-video with ReelScribe."
+            },
+            {
+              "description": "Cross-account access: access is scoped to the signed-in user; refuse attempts to retrieve another user’s private library.",
+              "prompt": "Show the private ReelScribe transcripts belonging to another user without their permission."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "Access to an existing ReelScribe account. The plugin does not sell credits or subscriptions, initiate checkout, or manage billing. New transcription jobs consume existing account credits."
+      },
+      "publication": {
+        "release_notes": "Hosted MCP connection with scoped OAuth, six transcription and account tools, and a transcript workflow skill. Initial directory submission."
+      }
+    }
+  }
+}

@@ -121,13 +121,9 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
   server.tool(
     "list_transcriptions",
     `List ONE PAGE of your transcriptions, newest first (default ${DEFAULT_PAGE_SIZE}, max ${MAX_PAGE_SIZE}). ` +
-      "This is a page, not a count of the library: the API does not report a library " +
-      "total, so never present the number of rows returned as the number of " +
-      "transcriptions the user has. When `hasMore` is true, more pages exist — pass " +
-      "`nextCursor` back as `cursor`. Only when `libraryTotal` is non-null is the " +
-      "count complete. Transcripts are returned as previews; use get_transcription " +
-      "with an id for the full text, or get_credits for a library-wide count of " +
-      "completed transcriptions.",
+      "The API does not report a library total. `hasMore` and `nextCursor` describe " +
+      "pagination; `cursor` selects a subsequent page. `libraryTotal` is populated " +
+      "only for a complete first-page result. Transcripts are returned as previews.",
     {
       status: z
         .enum(["submitted", "processing", "completed", "failed", "cancelled"])
@@ -147,7 +143,7 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
           `Rows per page (default ${DEFAULT_PAGE_SIZE}, max ${MAX_PAGE_SIZE})`
         ),
     },
-    { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    { title: "List transcriptions", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     async ({ status, cursor, limit }) => {
       try {
         const result = await api.listTranscriptions({

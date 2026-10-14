@@ -14,9 +14,9 @@ function sleep(ms: number) {
 export function register(server: McpServer, api: ApiClient = defaultApi, waitForResult = true) {
   server.tool(
     "transcribe_video",
-    (waitForResult ? "Submit a video URL for transcription and wait for the result. " : "Submit a video URL for transcription. Returns a requestId; use get_transcription to retrieve the result. ") + " Supports Instagram Reels/Posts, TikTok videos, YouTube videos/Shorts, and Facebook videos/Reels. Costs 1 credit. There is no storage quota, so a submission is never rejected for having too many saved transcriptions.",
+    (waitForResult ? "Submit a video URL for transcription and wait for the result. " : "Submit a video URL for transcription. Returns a requestId while the job processes. ") + "Supports Instagram Reels/Posts, TikTok videos, YouTube videos/Shorts, and Facebook videos/Reels. New jobs cost 1 credit. Existing matching transcripts may be reused without another charge. There is no storage quota.",
     { url: z.string().describe("Video URL (Instagram, TikTok, YouTube, or Facebook)") },
-    { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+    { title: "Transcribe video", readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
     async ({ url }) => {
       const validation = validateUrl(url);
       if (!validation.valid) {

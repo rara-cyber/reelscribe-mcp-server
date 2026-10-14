@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "reelscribe": {
+      "url": "https://reelscribe.app/api/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "cimd"
+            },
+            "baseScopes": [
+              "reelscribe:mcp"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

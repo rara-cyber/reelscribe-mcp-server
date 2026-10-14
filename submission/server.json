@@ -1,0 +1,27 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.rara-cyber/reelscribe",
+  "title": "ReelScribe",
+  "description": "Transcribe social videos, retrieve saved transcripts, and check ReelScribe credits.",
+  "version": "2.0.0",
+  "websiteUrl": "https://reelscribe.app/mcp",
+  "repository": {
+    "url": "https://github.com/rara-cyber/reelscribe-mcp-server",
+    "source": "github"
+  },
+  "icons": [
+    {
+      "src": "https://reelscribe.app/favicon-512x512.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://reelscribe.app/api/mcp"
+    }
+  ]
+}

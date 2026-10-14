@@ -6,8 +6,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that c
 
 ### Hosted connector (Cloudflare Workers)
 
-The endpoint is `https://reelscribe-mcp.sian-agency.workers.dev/mcp`; account sign-in requires
-the OAuth and Cloudflare setup below. Once deployed, add it as a remote
+The endpoint is `https://reelscribe.app/api/mcp`. Add it as a remote
 connector in Claude or as an MCP connection in ChatGPT developer mode, then
 sign in to your ReelScribe account and approve access. Directory publication is
 a separate review process.
@@ -33,10 +32,11 @@ returns the existing transcript. Hosted tools do not include purchase links.
 5. Verify `/health`, the public OAuth metadata, an unauthenticated `/mcp` 401
    challenge, and the complete sign-in and transcription flow in both clients.
 
-The initial deployment uses `workers.dev` because the authenticated Cloudflare
-account cannot access the `reelscribe.app` zone. After domain access is available,
-add the custom-domain route for `mcp.reelscribe.app` in `wrangler.jsonc`, update
-`RESOURCE` in `src/worker.ts`, and verify OAuth discovery again before switching clients.
+The branded URL is forwarded by the ReelScribe website to the existing Cloudflare
+Worker with `branded=1`, which selects matching OAuth resource metadata.
+The original `https://reelscribe-mcp.sian-agency.workers.dev/mcp` endpoint and its
+OAuth discovery remain available for existing connections. The domain is managed
+outside Cloudflare, so a direct Worker custom subdomain would require DNS changes.
 
 The Worker holds no shared user API key or Clerk secret. It forwards each
 caller's token to ReelScribe's API, which verifies it with Clerk and resolves
