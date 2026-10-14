@@ -1,5 +1,4 @@
 {
-  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "reelscribe",
   "version": "2.0.0",
   "description": "Transcribe supported social videos and work with your own saved ReelScribe transcripts.",
@@ -17,34 +16,36 @@
     "reelscribe",
     "mcp"
   ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "ReelScribe",
+    "shortDescription": "Transcribe videos in your chat",
+    "longDescription": "Connect your ReelScribe account to transcribe Instagram, TikTok, YouTube, and Facebook video URLs. Read saved transcripts, browse a page of your history, search recent history by original video URL, validate supported URLs, and check credits and retention. New transcription jobs spend 1 credit and return a request ID for retrieval after processing. Reading transcripts, checking credits, and URL validation do not spend credits. Access is limited to your own account. The connector cannot delete transcripts, change settings, or manage billing. Private, removed, restricted, or unsupported videos may fail. URL search covers a bounded recent-history window. A ReelScribe account is required.",
+    "developerName": "SIÁN OÜ",
+    "category": "Productivity",
+    "capabilities": [
+      "Transcribe supported videos",
+      "Read saved transcripts",
+      "Search recent video URLs",
+      "Check credits and retention",
+      "Validate video URLs"
+    ],
+    "websiteURL": "https://reelscribe.app/mcp",
+    "supportURL": "https://reelscribe.app/contact",
+    "privacyPolicyURL": "https://reelscribe.app/privacy",
+    "termsOfServiceURL": "https://reelscribe.app/terms",
+    "defaultPrompt": [
+      "Show my credit balance and latest completed transcriptions.",
+      "Validate this video URL without spending credits.",
+      "Summarize the full text of my latest saved transcript."
+    ],
+    "brandColor": "#9333EA",
+    "composerIcon": "./assets/logo.png",
+    "logo": "./assets/logo.png"
+  },
   "extensions": {
     "com.openai": {
-      "interface": {
-        "displayName": "ReelScribe",
-        "shortDescription": "Transcribe videos in your chat",
-        "longDescription": "Connect your ReelScribe account to transcribe Instagram, TikTok, YouTube, and Facebook video URLs. Read saved transcripts, browse a page of your history, search recent history by original video URL, validate supported URLs, and check credits and retention. New transcription jobs spend 1 credit and return a request ID for retrieval after processing. Reading transcripts, checking credits, and URL validation do not spend credits. Access is limited to your own account. The connector cannot delete transcripts, change settings, or manage billing. Private, removed, restricted, or unsupported videos may fail. URL search covers a bounded recent-history window. A ReelScribe account is required.",
-        "developerName": "SIÁN OÜ",
-        "category": "Productivity",
-        "capabilities": [
-          "Transcribe supported videos",
-          "Read saved transcripts",
-          "Search recent video URLs",
-          "Check credits and retention",
-          "Validate video URLs"
-        ],
-        "websiteURL": "https://reelscribe.app/mcp",
-        "supportURL": "https://reelscribe.app/contact",
-        "privacyPolicyURL": "https://reelscribe.app/privacy",
-        "termsOfServiceURL": "https://reelscribe.app/terms",
-        "defaultPrompt": [
-          "Show my credit balance and latest completed transcriptions.",
-          "Validate this video URL without spending credits.",
-          "Summarize the full text of my latest saved transcript."
-        ],
-        "brandColor": "#9333EA",
-        "composerIcon": "./assets/logo.png",
-        "logo": "./assets/logo.png"
-      },
       "review": {
         "test_cases": {
           "positive": [
