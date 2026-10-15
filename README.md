@@ -13,7 +13,7 @@ a separate review process.
 
 Hosted transcription returns a `requestId` immediately. Use `get_transcription`
 with that ID to retrieve the transcript after processing; submitting a duplicate
-returns the existing transcript. Billing and account administration use authenticated website links; no tool purchases a plan or transfers funds.
+returns the existing transcript. Account administration is available on the website.
 
 #### Deploying
 
@@ -24,13 +24,11 @@ returns the existing transcript. Billing and account administration use authenti
    and credit balance, and submit transcriptions that spend credits. Enable
    CIMD client onboarding, require S256 PKCE, and set the default scopes to
    `reelscribe:mcp`. For expanded workflows register an optional separate
-   `reelscribe:manage` scope: consent must explain batch/channel submissions that
-   spend credits, retries, cancellation/refunds, permanent transcript deletion,
-   download preparation and preference changes. Existing tokens retain their
-   original permissions. Users must explicitly grant the new scope on reconnect,
-   or use an account API key for these operations. For the full connector set default
-   scopes to `reelscribe:mcp reelscribe:manage` after creating both consent entries;
-   a read/single-submit client may request only `reelscribe:mcp`. Keep opaque access tokens enabled. Allow the intended
+   `reelscribe:manage` scope, retained under its existing name for compatibility.
+   Its consent text must explain only batch/channel submissions that spend credits.
+   Default scopes are `reelscribe:mcp reelscribe:manage`; a single-video client may
+   request only `reelscribe:mcp`. Existing connections must explicitly approve the
+   extra transcription permission on reconnect. Keep opaque access tokens enabled. Allow the intended
    clients to request the custom scope; enable DCR only for clients needing it.
 3. Authenticate Wrangler with permission to deploy Workers in the SIÁN account.
    If Wrangler lists multiple accounts, set `CLOUDFLARE_ACCOUNT_ID` to that account.
@@ -47,9 +45,10 @@ outside Cloudflare, so a direct Worker custom subdomain would require DNS change
 
 The Worker holds no shared user API key or Clerk secret. It forwards each
 caller's token to ReelScribe's API, which verifies it with Clerk and resolves
-only that token's user. The base OAuth scope permits reads and single transcription
-submission; deletion and other management writes require separately granted
-`reelscribe:manage` consent. Existing grants keep their original permissions.
+only that token's user. The base OAuth scope permits transcript, credit and job reads and single-video
+submission. Batch/channel submissions require separately granted `reelscribe:manage`
+consent. Despite its legacy name, this scope grants only transcription submission.
+Even existing management grants cannot access downloads, deletion, analytics or settings.
 
 Local stdio setup remains available below.
 
@@ -122,18 +121,14 @@ Add to your MCP client configuration:
 
 | `transcribe_bulk` | Submit a URL list (including URLs read from CSV); tier limits and 1 credit per new video apply. |
 | `transcribe_instagram_channel` | Paid Instagram channel scraping, 1–50 reels and optional date filter. |
-| `list_jobs` / `cancel_bulk_job` | Page through owned jobs, read progress, cancel pending rows and refund eligible credits. |
-| `retry_transcription` / `delete_transcriptions` | Website retry policy, permanent deletion and cancellation/refund semantics. |
-| `get_analytics` | Filtered account analytics, including the same read-budget disclosure as the web app. |
-| `export_transcriptions` / `get_export` | Single TXT/DOCX/JSON/SRT/VTT; single/bulk CSV or ZIP. Expiring download URLs. |
-| `get_settings` / `update_settings` | Read/update website notification and tooltip preferences; retention is read-only. |
-| `get_account_links` | Website handoff for billing, API keys, privacy and account security. |
+| `list_jobs` | Read progress and page through owned batch/channel jobs. |
 
-Management operations require an API key or explicit `reelscribe:manage` consent;
-legacy OAuth tokens cannot perform them. Facebook comments remain unsupported.
-The website, extension and MCP share the same backend handlers and export code.
-Local npm release 2.2.0 is prepared separately; the hosted deployment does not
-publish that npm release.
+The nine tools focus on transcription. Downloads, library management, retries,
+cancellation, analytics, settings and billing are available in the web app.
+Batch and channel submissions require an API key or explicit additional
+`reelscribe:manage` transcription consent; legacy base-only OAuth tokens cannot
+perform them. Facebook comments remain unsupported. The hosted 2.2.1 release
+does not publish the deferred npm release.
 
 ### Comment extraction
 

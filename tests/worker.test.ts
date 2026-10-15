@@ -81,7 +81,7 @@ test("stateless initialization and tool discovery work across requests", async (
   });
   const listed = await worker.fetch(request("tools/list", {}, "alice"), env);
   const tools = (await listed.json() as any).result.tools;
-  expect(tools.map((tool: any) => tool.name).sort()).toEqual(["get_credits", "get_transcription", "list_transcriptions", "search_transcriptions", "transcribe_video", "validate_url", "transcribe_bulk", "transcribe_instagram_channel", "list_jobs", "cancel_bulk_job", "retry_transcription", "delete_transcriptions", "get_analytics", "export_transcriptions", "get_export", "get_settings", "update_settings", "get_account_links"].sort());
+  expect(tools.map((tool: any) => tool.name).sort()).toEqual(["get_credits", "get_transcription", "list_transcriptions", "search_transcriptions", "transcribe_video", "validate_url", "transcribe_bulk", "transcribe_instagram_channel", "list_jobs"].sort());
   expect(tools.find((tool: any) => tool.name === "transcribe_video").annotations.destructiveHint).toBe(true);
   for (const tool of tools) {
     expect(tool.annotations.title).toBeTruthy();
