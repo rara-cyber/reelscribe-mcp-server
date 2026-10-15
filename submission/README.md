@@ -8,11 +8,11 @@ OpenAI portal: https://platform.openai.com/plugins. The current account's upload
 
 Claude submission: https://claude.ai/directory/manage/reelscribe. Submitted on October 14, 2026 and confirmed **In review**, under publisher SIÁN OÜ. Reviewer credentials and live-test results are supplied privately. The saved authentication configuration was verified as OAuth with Client ID Metadata Document (CIMD), matching the server’s discovery; automatic client registration is not enabled. The listing is not public in the directory until approved.
 
-`server.json` is the official MCP Registry submission, validated against its schema. It uses the remote Streamable HTTP endpoint and GitHub namespace `io.github.rara-cyber/reelscribe`. No existing ReelScribe registry entry was found during preparation. The registry's publication flow uses its CLI:
+`server.json` is the official MCP Registry submission. Its description stays within the Registry’s 100-character limit. Version **2.2.1 was published on October 15, 2026** with the remote Streamable HTTP endpoint `https://reelscribe.app/api/mcp` and namespace `io.github.rara-cyber/reelscribe`. An independent Registry API read confirmed the record is active and latest. This Registry listing does not publish the private source repository or imply approval in the Claude or ChatGPT directories. Future Registry releases use its CLI:
 
 ```
 mcp-publisher login github
 mcp-publisher publish
 ```
 
-Run those commands from this directory after completing ownership authorization and deciding to publish. Registry guide: https://modelcontextprotocol.io/registry/quickstart.
+Run those commands from this directory for an authorized version update. Registry guide: https://modelcontextprotocol.io/registry/quickstart.

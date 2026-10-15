@@ -4,6 +4,7 @@ const read=(file:string)=>JSON.parse(readFileSync(new URL('../'+file,import.meta
 test('directory artifacts request the transcription consent scope and match the release version',()=>{
  const version=read('package.json').version;
  expect(read('submission/server.json').version).toBe(version);
+ expect(read('submission/server.json').description.length).toBeLessThanOrEqual(100);
  expect(read('submission/plugin/.codex-plugin/plugin.json').version).toBe(version);
  expect(read('submission/plugin/.mcp.json').mcpServers.reelscribe.extensions['com.openai'].auth.baseScopes).toEqual(['reelscribe:mcp','reelscribe:manage']);
  expect(read('submission/plugin/.codex-plugin/plugin.json').interface.longDescription).toContain('additional transcription consent');
