@@ -19,7 +19,7 @@ function request(method: string, params: unknown, token?: string) {
 
 test("OAuth discovery is public and missing credentials receive a challenge", async () => {
   const discovery = await worker.fetch(new Request("https://mcp.reelscribe.app/.well-known/oauth-protected-resource/mcp"), env);
-  expect(await discovery.json()).toMatchObject({ resource: "https://reelscribe-mcp.sian-agency.workers.dev/mcp", authorization_servers: [env.CLERK_ISSUER], scopes_supported: ["reelscribe:mcp"] });
+  expect(await discovery.json()).toMatchObject({ resource: "https://reelscribe-mcp.sian-agency.workers.dev/mcp", authorization_servers: [env.CLERK_ISSUER], scopes_supported: ["reelscribe:mcp", "reelscribe:manage"] });
   const response = await worker.fetch(request("tools/list", {}), env);
   expect(response.status).toBe(401);
   expect(response.headers.get("WWW-Authenticate")).toContain("oauth-protected-resource/mcp");
@@ -80,7 +80,7 @@ test("stateless initialization and tool discovery work across requests", async (
   });
   const listed = await worker.fetch(request("tools/list", {}, "alice"), env);
   const tools = (await listed.json() as any).result.tools;
-  expect(tools.map((tool: any) => tool.name).sort()).toEqual(["get_credits", "get_transcription", "list_transcriptions", "search_transcriptions", "transcribe_video", "validate_url"]);
+  expect(tools.map((tool: any) => tool.name).sort()).toEqual(["get_credits", "get_transcription", "list_transcriptions", "search_transcriptions", "transcribe_video", "validate_url", "transcribe_bulk", "transcribe_instagram_channel", "list_jobs", "cancel_bulk_job", "retry_transcription", "delete_transcriptions", "get_analytics", "export_transcriptions", "get_export", "get_settings", "update_settings", "get_account_links"].sort());
   expect(tools.find((tool: any) => tool.name === "transcribe_video").annotations.destructiveHint).toBe(true);
   for (const tool of tools) {
     expect(tool.annotations.title).toBeTruthy();

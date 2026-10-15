@@ -37,6 +37,9 @@ export interface Transcription {
   comments: Array<{ text: string; author: string; likes: number; isPinned: boolean; isCreator: boolean }> | null;
   owner: string | null;
   duration: number | null;
+  bulkJobId?: string | null;
+  retryCount?: number;
+  music?: unknown;
   stats: { likes: number | null; views: number | null; comments: number | null } | null;
   segments: unknown[] | null;
   thumbnailUrl: string | null;
@@ -140,10 +143,8 @@ export function createApiClient(getToken: () => string) {
     const body = await res.json();
 
     if (!res.ok) {
-      const err = body as ApiError;
-      throw new Error(
-        err.error?.message || `API request failed with status ${res.status}`
-      );
+      const error = (body as { error?: string | { message?: string } }).error;
+      throw new Error(typeof error === "string" ? error : error?.message || `API request failed with status ${res.status}`);
     }
 
     return body as T;
@@ -168,11 +169,19 @@ export function createApiClient(getToken: () => string) {
 
   async function listTranscriptions(params?: {
     status?: string;
+    owner?: string;
+    platform?: string;
+    bulkJobId?: string;
+    requestIdFilter?: string;
+    startDate?: number;
+    endDate?: number;
     cursor?: string;
     limit?: number;
   }): Promise<TranscriptionList> {
     const searchParams = new URLSearchParams();
-    if (params?.status) searchParams.set("status", params.status);
+    for (const [key, value] of Object.entries(params ?? {})) {
+      if (value !== undefined) searchParams.set(key, String(value));
+    }
     if (params?.cursor) searchParams.set("cursor", params.cursor);
     if (params?.limit) searchParams.set("limit", String(params.limit));
     const qs = searchParams.toString();
@@ -190,8 +199,27 @@ export function createApiClient(getToken: () => string) {
     return request<Credits>("/credits");
   }
 
-  return { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits };
+  const post = (path: string, body: unknown) => request<unknown>(path, { method: "POST", body: JSON.stringify(body) });
+  const query = (path: string, params: Record<string, unknown> = {}) => {
+    const qs = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) if (value !== undefined) qs.set(key, String(value));
+    return request<unknown>(`${path}?${qs}`);
+  };
+  const transcribeBulk = (params: { urls?: string[]; channelUsername?: string; reelCount?: number; onlyPostsNewerThan?: string }) => post("/bulk-transcribe", params);
+  const retryTranscription = (transcriptionId: string) => post("/retry-transcription", { transcriptionId });
+  const cancelBulkJob = (bulkJobId: string) => post("/cancel-bulk-job", { bulkJobId });
+  const deleteTranscriptions = (ids: string[]) => request<unknown>("/transcriptions", { method: "DELETE", body: JSON.stringify({ ids }) });
+  const listJobs = (params: { bulkJobId?: string; cursor?: string }) => query("/jobs", params);
+  const getAnalytics = (params: Record<string, unknown>) => query("/analytics", params);
+  const startExport = (ids: string[], format: string) => post("/exports", { ids, format });
+  const getExport = (jobId: string) => query("/exports", { jobId });
+  const getSettings = () => query("/settings");
+  const updateSettings = (params: { toastNotifications?: boolean; tooltipsEnabled?: boolean }) => request<unknown>("/settings", { method: "PATCH", body: JSON.stringify(params) });
+  return { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits,
+    transcribeBulk, retryTranscription, cancelBulkJob, deleteTranscriptions, listJobs, getAnalytics, startExport, getExport, getSettings, updateSettings };
+
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;
-export const { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits } = createApiClient(getApiKey);
+export const { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits,
+  transcribeBulk, retryTranscription, cancelBulkJob, deleteTranscriptions, listJobs, getAnalytics, startExport, getExport, getSettings, updateSettings } = createApiClient(getApiKey);

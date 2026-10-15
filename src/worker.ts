@@ -31,7 +31,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: HEADERS });
     if (path === "/health") return response({ healthy: true });
     if (path === "/.well-known/oauth-protected-resource" || path === "/.well-known/oauth-protected-resource/mcp") {
-      return response({ resource, authorization_servers: [env.CLERK_ISSUER], scopes_supported: ["reelscribe:mcp"], bearer_methods_supported: ["header"], resource_name: "ReelScribe", resource_documentation: "https://reelscribe.app/mcp" });
+      return response({ resource, authorization_servers: [env.CLERK_ISSUER], scopes_supported: ["reelscribe:mcp", "reelscribe:manage"], bearer_methods_supported: ["header"], resource_name: "ReelScribe", resource_documentation: "https://reelscribe.app/mcp" });
     }
     if (path !== "/mcp") return response({ error: "not_found" }, 404);
     const origin = request.headers.get("Origin");

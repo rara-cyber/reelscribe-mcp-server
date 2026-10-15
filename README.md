@@ -13,7 +13,7 @@ a separate review process.
 
 Hosted transcription returns a `requestId` immediately. Use `get_transcription`
 with that ID to retrieve the transcript after processing; submitting a duplicate
-returns the existing transcript. Hosted tools do not include purchase links.
+returns the existing transcript. Billing and account administration use authenticated website links; no tool purchases a plan or transfers funds.
 
 #### Deploying
 
@@ -23,7 +23,12 @@ returns the existing transcript. Hosted tools do not include purchase links.
    `reelscribe:mcp`, with consent text explaining permission to read transcripts
    and credit balance, and submit transcriptions that spend credits. Enable
    CIMD client onboarding, require S256 PKCE, and set the default scopes to
-   `reelscribe:mcp`. Keep opaque access tokens enabled. Allow the intended
+   `reelscribe:mcp`. For expanded workflows register an optional separate
+   `reelscribe:manage` scope: consent must explain batch/channel submissions that
+   spend credits, retries, cancellation/refunds, permanent transcript deletion,
+   download preparation and preference changes. Existing tokens retain their
+   original permissions. Users must explicitly grant the new scope on reconnect,
+   or use an account API key for these operations. Keep opaque access tokens enabled. Allow the intended
    clients to request the custom scope; enable DCR only for clients needing it.
 3. Authenticate Wrangler with permission to deploy Workers in the SIÁN account.
    If Wrangler lists multiple accounts, set `CLOUDFLARE_ACCOUNT_ID` to that account.
@@ -107,10 +112,25 @@ Add to your MCP client configuration:
 |------|-------------|
 | `transcribe_video` | Submit a video URL (1 credit). Optional `includeComments` for Instagram, TikTok and YouTube. Hosted server returns a job ID; local server waits for the result. |
 | `get_transcription` | Get a transcription by ID or requestId. Returns full transcript text. |
-| `list_transcriptions` | List **one page** of your transcriptions (default 20, max 200), newest first. Optional status filter. |
+| `list_transcriptions` | List **one page** of your transcriptions (default 20, max 200), newest first. Status, platform, creator, date, job and request filters. |
 | `search_transcriptions` | Find transcriptions by the original video URL, within a bounded recent window. |
 | `get_credits` | Check credit balance, subscription tier, stored transcription count, and retention. |
 | `validate_url` | Check if a URL is supported without submitting. |
+
+| `transcribe_bulk` | Submit a URL list (including URLs read from CSV); tier limits and 1 credit per new video apply. |
+| `transcribe_instagram_channel` | Paid Instagram channel scraping, 1–50 reels and optional date filter. |
+| `list_jobs` / `cancel_bulk_job` | Page through owned jobs, read progress, cancel pending rows and refund eligible credits. |
+| `retry_transcription` / `delete_transcriptions` | Website retry policy, permanent deletion and cancellation/refund semantics. |
+| `get_analytics` | Filtered account analytics, including the same read-budget disclosure as the web app. |
+| `export_transcriptions` / `get_export` | Single TXT/DOCX/JSON/SRT/VTT; single/bulk CSV or ZIP. Expiring download URLs. |
+| `get_settings` / `update_settings` | Read/update website notification and tooltip preferences; retention is read-only. |
+| `get_account_links` | Website handoff for billing, API keys, privacy and account security. |
+
+Management operations require an API key or explicit `reelscribe:manage` consent;
+legacy OAuth tokens cannot perform them. Facebook comments remain unsupported.
+The website, extension and MCP share the same backend handlers and export code.
+Local npm release 2.2.0 is prepared separately; the hosted deployment does not
+publish that npm release.
 
 ### Comment extraction
 
