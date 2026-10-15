@@ -206,20 +206,12 @@ export function createApiClient(getToken: () => string) {
     return request<unknown>(`${path}?${qs}`);
   };
   const transcribeBulk = (params: { urls?: string[]; channelUsername?: string; reelCount?: number; onlyPostsNewerThan?: string }) => post("/bulk-transcribe", params);
-  const retryTranscription = (transcriptionId: string) => post("/retry-transcription", { transcriptionId });
-  const cancelBulkJob = (bulkJobId: string) => post("/cancel-bulk-job", { bulkJobId });
-  const deleteTranscriptions = (ids: string[]) => request<unknown>("/transcriptions", { method: "DELETE", body: JSON.stringify({ ids }) });
   const listJobs = (params: { bulkJobId?: string; cursor?: string }) => query("/jobs", params);
-  const getAnalytics = (params: Record<string, unknown>) => query("/analytics", params);
-  const startExport = (ids: string[], format: string) => post("/exports", { ids, format });
-  const getExport = (jobId: string) => query("/exports", { jobId });
-  const getSettings = () => query("/settings");
-  const updateSettings = (params: { toastNotifications?: boolean; tooltipsEnabled?: boolean }) => request<unknown>("/settings", { method: "PATCH", body: JSON.stringify(params) });
   return { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits,
-    transcribeBulk, retryTranscription, cancelBulkJob, deleteTranscriptions, listJobs, getAnalytics, startExport, getExport, getSettings, updateSettings };
+    transcribeBulk, listJobs };
 
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;
 export const { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits,
-  transcribeBulk, retryTranscription, cancelBulkJob, deleteTranscriptions, listJobs, getAnalytics, startExport, getExport, getSettings, updateSettings } = createApiClient(getApiKey);
+  transcribeBulk, listJobs } = createApiClient(getApiKey);

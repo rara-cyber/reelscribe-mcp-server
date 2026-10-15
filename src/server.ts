@@ -12,7 +12,7 @@ export function createServer(api?: ApiClient, hosted = false) {
   const server = new McpServer({
     name: "reelscribe.app",
     title: "ReelScribe",
-    version: "2.2.0",
+    version: "2.2.1",
     websiteUrl: "https://reelscribe.app",
     icons: [{ src: "https://reelscribe.app/favicon-512x512.png", mimeType: "image/png", sizes: ["512x512"] }],
   });

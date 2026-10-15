@@ -1,7 +1,7 @@
 {
   "name": "reelscribe",
-  "version": "2.2.0",
-  "description": "Transcribe supported social videos and work with your own saved ReelScribe transcripts.",
+  "version": "2.2.1",
+  "description": "Transcribe videos, selected comments, URL batches and Instagram channels with ReelScribe.",
   "author": {
     "name": "SIÁN OÜ",
     "email": "support@reelscribe.app",
@@ -21,19 +21,14 @@
   "interface": {
     "displayName": "ReelScribe",
     "shortDescription": "Transcribe videos in your chat",
-    "longDescription": "Connect your ReelScribe account to transcribe Instagram, TikTok, YouTube and Facebook videos, optionally extracting selected comments on the first three. Browse and filter saved transcripts with metadata and timestamped segments. Run URL/CSV batches or paid Instagram channel jobs, check progress, retry failures, cancel pending jobs with eligible refunds, and permanently delete selected transcripts. Export TXT, Word, JSON, CSV, SRT, VTT or ZIP, read account analytics and retention, and update notification/tooltip preferences. New videos spend existing account credits; batch and channel limits match the website. Management actions require explicit additional consent. Existing connections must reconnect and approve it. Billing, API keys and account security open the authenticated website; the connector does not purchase plans or transfer funds. Private, removed or restricted videos may fail. URL search covers a bounded recent-history window. A ReelScribe account is required.",
+    "longDescription": "Transcribe Instagram, TikTok, YouTube and Facebook videos, optionally including selected comments on the first three platforms. Submit URL lists, including URLs read from CSV, or Instagram channel jobs. Check credits, track progress and retrieve your own saved transcripts. New videos spend existing ReelScribe credits; account plan limits apply. Batch and channel submissions require additional transcription consent. Downloads, library management, analytics, settings and billing are available in the web app. Private, removed or restricted videos may fail. URL search covers a bounded recent-history window. A ReelScribe account is required.",
     "developerName": "SIÁN OÜ",
     "category": "Productivity",
     "capabilities": [
-      "Transcribe videos and selected comments",
-      "Browse and filter saved transcripts",
-      "Run URL/CSV batches and Instagram channel jobs",
-      "Track jobs, retry failures and cancel pending videos",
-      "Permanently delete selected transcripts",
-      "Export transcript and subtitle files",
-      "Read analytics, credits and retention",
-      "Update notification and tooltip preferences",
-      "Open account administration on the website"
+      "Transcribe supported videos and selected comments",
+      "Submit URL/CSV batches and Instagram channel jobs",
+      "Check transcription progress and retrieve results",
+      "Read credit balance and transcript retention"
     ],
     "websiteURL": "https://reelscribe.app/mcp",
     "supportURL": "https://reelscribe.app/contact",
@@ -86,8 +81,8 @@
           ],
           "negative": [
             {
-              "description": "Invalid deletion selection: reject an empty ID list without deleting data. Never infer another account or create records to satisfy the request.",
-              "prompt": "Call delete_transcriptions with an empty ids list."
+              "description": "Invalid batch: reject an empty URL list without starting a job or spending credits.",
+              "prompt": "Call transcribe_bulk with an empty urls list."
             },
             {
               "description": "Unsupported platform: reject the unsupported URL and do not create a job or spend credits.",
@@ -103,7 +98,7 @@
         "commerce_description": "Access to an existing ReelScribe account. The plugin does not sell credits or subscriptions, initiate checkout, or manage billing. New transcription jobs consume existing account credits."
       },
       "publication": {
-        "release_notes": "MCP 2.2.0 adds 18 account-scoped tools, explicit management consent, batch/channel jobs, library management, exports, analytics and preferences. Existing grants retain their permissions until the user reconnects and approves management access."
+        "release_notes": "MCP 2.2.1 focuses on nine transcription tools: single videos, selected comments, URL batches, Instagram channels, progress, results and credit checks. Downloads, library management, analytics and settings stay in the web app. Batch/channel submissions require additional consent."
       }
     }
   }
