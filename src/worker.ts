@@ -40,7 +40,7 @@ export default {
     }
 
     const token = request.headers.get("Authorization")?.match(/^Bearer\s+(\S+)$/i)?.[1];
-    const challenge = () => response({ error: "unauthorized" }, 401, { "WWW-Authenticate": `Bearer resource_metadata="${metadata}", scope="reelscribe:mcp"` });
+    const challenge = () => response({ error: "unauthorized" }, 401, { "WWW-Authenticate": `Bearer resource_metadata="${metadata}", scope="reelscribe:mcp reelscribe:manage"` });
     if (!token || token.length > 8192) return challenge();
 
     // Validate before tools/list or initialize, too; the API enforces Clerk scope and ownership.

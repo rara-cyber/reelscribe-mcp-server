@@ -23,6 +23,7 @@ test("OAuth discovery is public and missing credentials receive a challenge", as
   const response = await worker.fetch(request("tools/list", {}), env);
   expect(response.status).toBe(401);
   expect(response.headers.get("WWW-Authenticate")).toContain("oauth-protected-resource/mcp");
+  expect(response.headers.get("WWW-Authenticate")).toContain('scope="reelscribe:mcp reelscribe:manage"');
 });
 
 test("invalid and unavailable upstream authentication fail closed", async () => {

@@ -28,7 +28,9 @@ returns the existing transcript. Billing and account administration use authenti
    spend credits, retries, cancellation/refunds, permanent transcript deletion,
    download preparation and preference changes. Existing tokens retain their
    original permissions. Users must explicitly grant the new scope on reconnect,
-   or use an account API key for these operations. Keep opaque access tokens enabled. Allow the intended
+   or use an account API key for these operations. For the full connector set default
+   scopes to `reelscribe:mcp reelscribe:manage` after creating both consent entries;
+   a read/single-submit client may request only `reelscribe:mcp`. Keep opaque access tokens enabled. Allow the intended
    clients to request the custom scope; enable DCR only for clients needing it.
 3. Authenticate Wrangler with permission to deploy Workers in the SIÁN account.
    If Wrangler lists multiple accounts, set `CLOUDFLARE_ACCOUNT_ID` to that account.
@@ -45,8 +47,9 @@ outside Cloudflare, so a direct Worker custom subdomain would require DNS change
 
 The Worker holds no shared user API key or Clerk secret. It forwards each
 caller's token to ReelScribe's API, which verifies it with Clerk and resolves
-only that token's user. OAuth access permits reads and transcription submission;
-deletion and account-setting writes remain unavailable through this scope.
+only that token's user. The base OAuth scope permits reads and single transcription
+submission; deletion and other management writes require separately granted
+`reelscribe:manage` consent. Existing grants keep their original permissions.
 
 Local stdio setup remains available below.
 
