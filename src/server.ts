@@ -5,13 +5,14 @@ import { register as get } from "./tools/getTranscription.js";
 import { register as list } from "./tools/listTranscriptions.js";
 import { register as search } from "./tools/searchTranscriptions.js";
 import { register as credits } from "./tools/getCredits.js";
+import { register as workflows } from "./tools/workflows.js";
 import { register as validate } from "./tools/validateUrl.js";
 
 export function createServer(api?: ApiClient, hosted = false) {
   const server = new McpServer({
     name: "reelscribe.app",
     title: "ReelScribe",
-    version: "2.1.0",
+    version: "2.2.0",
     websiteUrl: "https://reelscribe.app",
     icons: [{ src: "https://reelscribe.app/favicon-512x512.png", mimeType: "image/png", sizes: ["512x512"] }],
   });
@@ -21,5 +22,6 @@ export function createServer(api?: ApiClient, hosted = false) {
   search(server, api);
   credits(server, api, !hosted);
   validate(server);
+  workflows(server, api);
   return server;
 }

@@ -200,7 +200,7 @@ function validateFacebook(url: string): ValidateResult {
     return { valid: true, platform: "facebook", normalizedUrl: url };
   }
 
-  if (/facebook\.com\/(?:watch\/?\?v=\d+|[\w.-]+\/videos\/\d+)/i.test(url)) {
+  if (/facebook\.com\/(?:watch\/?\?v=\d+|share\/[rv]\/[A-Za-z0-9]+|[\w.-]+\/videos\/(?:[\w-]+\/)?\d+)/i.test(url)) {
     return {
       valid: true,
       platform: "facebook",

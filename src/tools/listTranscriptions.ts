@@ -129,6 +129,12 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
         .enum(["submitted", "processing", "completed", "failed", "cancelled"])
         .optional()
         .describe("Filter by transcription status"),
+      owner: z.string().max(200).optional().describe("Exact creator/channel name"),
+      platform: z.enum(["instagram", "tiktok", "youtube", "facebook"]).optional(),
+      bulkJobId: z.string().max(200).optional(),
+      requestIdFilter: z.string().max(200).optional().describe("Exact transcription request ID filter"),
+      startDate: z.number().int().min(0).optional().describe("Inclusive creation date, epoch milliseconds"),
+      endDate: z.number().int().min(0).optional(),
       cursor: z
         .string()
         .optional()
@@ -144,9 +150,10 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
         ),
     },
     { title: "List transcriptions", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
-    async ({ status, cursor, limit }) => {
+    async ({ status, cursor, limit, ...filters }) => {
       try {
         const result = await api.listTranscriptions({
+          ...filters,
           status,
           cursor,
           limit: limit ?? DEFAULT_PAGE_SIZE,
