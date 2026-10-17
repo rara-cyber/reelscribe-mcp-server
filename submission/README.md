@@ -24,10 +24,10 @@ Run those commands from this directory for an authorized version update. Registr
 | Claude directory | Approved October 14 as community connector, **not yet published** | Publish at https://claude.ai/admin-settings/directory/submissions/reelscribe |
 | Official MCP Registry | Live, 2.2.1 | `mcp-publisher` (above) |
 | Glama | Auto-listed: server `rara-cyber/reelscribe-mcp-server` and connector `io.github.rara-cyber/reelscribe` | Commit the root `glama.json` to claim the server |
-| PulseMCP | Not listed | https://www.pulsemcp.com/submit (it also ingests the Registry) |
+| PulseMCP | Not listed; submissions paused since September 3, 2026 | None needed: it ingests the Official Registry when it reopens |
 | Smithery | Not listed | https://smithery.ai/new, publish by URL `https://reelscribe.app/api/mcp` (GitHub sign-in) |
 | mcp.so | Not listed | https://mcp.so/submit (sign-in) |
-| awesome-mcp-servers | Not listed | PR to punkpeye/awesome-mcp-servers, section 🎥 Multimedia Process |
+| awesome-mcp-servers | PR open: https://github.com/punkpeye/awesome-mcp-servers/pull/16715 | Section 🎥 Multimedia Process |
 | Agensi | Not listed | Free skill, `agensi/` (below) |
 
 Listing copy:
