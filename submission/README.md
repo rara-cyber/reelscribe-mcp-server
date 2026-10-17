@@ -8,7 +8,7 @@ OpenAI portal: https://platform.openai.com/plugins. The current account's upload
 
 Claude submission: https://claude.ai/directory/manage/reelscribe. Submitted on October 14, 2026 and confirmed **In review**, under publisher SIÁN OÜ. Reviewer credentials and live-test results are supplied privately. The saved authentication configuration was verified as OAuth with Client ID Metadata Document (CIMD), matching the server’s discovery; automatic client registration is not enabled. The listing is not public in the directory until approved.
 
-`server.json` is the official MCP Registry submission. Its description stays within the Registry’s 100-character limit. Version **2.2.1 was published on October 15, 2026** with the remote Streamable HTTP endpoint `https://reelscribe.app/api/mcp` and namespace `io.github.rara-cyber/reelscribe`. An independent Registry API read confirmed the record is active and latest. This Registry listing does not publish the private source repository or imply approval in the Claude or ChatGPT directories. Future Registry releases use its CLI:
+`server.json` is the official MCP Registry submission. Its description stays within the Registry’s 100-character limit. Version **2.2.1 was published on October 15, 2026** with the remote Streamable HTTP endpoint `https://reelscribe.app/api/mcp` and namespace `io.github.rara-cyber/reelscribe`. An independent Registry API read confirmed the record is active and latest. This Registry listing does not imply approval in the Claude or ChatGPT directories. Future Registry releases use its CLI:
 
 ```
 mcp-publisher login github
@@ -16,3 +16,27 @@ mcp-publisher publish
 ```
 
 Run those commands from this directory for an authorized version update. Registry guide: https://modelcontextprotocol.io/registry/quickstart.
+
+## Other directories (status October 17, 2026)
+
+| Directory | Status | How |
+|---|---|---|
+| Claude directory | Approved October 14 as community connector, **not yet published** | Publish at https://claude.ai/admin-settings/directory/submissions/reelscribe |
+| Official MCP Registry | Live, 2.2.1 | `mcp-publisher` (above) |
+| Glama | Auto-listed: server `rara-cyber/reelscribe-mcp-server` and connector `io.github.rara-cyber/reelscribe` | Commit the root `glama.json` to claim the server |
+| PulseMCP | Not listed | https://www.pulsemcp.com/submit (it also ingests the Registry) |
+| Smithery | Not listed | https://smithery.ai/new, publish by URL `https://reelscribe.app/api/mcp` (GitHub sign-in) |
+| mcp.so | Not listed | https://mcp.so/submit (sign-in) |
+| awesome-mcp-servers | Not listed | PR to punkpeye/awesome-mcp-servers, section 🎥 Multimedia Process |
+| Agensi | Not listed | Free skill, `agensi/` (below) |
+
+Listing copy:
+
+- **Short (≤100):** Transcribe social videos, selected comments, URL batches and Instagram channels.
+- **Long:** ReelScribe turns Instagram Reels, TikTok, YouTube and Facebook video URLs into transcripts from any MCP client. Nine tools: transcribe a video (optionally with top comments), batch URL lists, transcribe 1–50 reels from an Instagram channel, track jobs, and read, list and search saved transcripts. Hosted OAuth endpoint `https://reelscribe.app/api/mcp`, or local stdio via `npx -y reelscribe-mcp-server` with an API key. 25 free credits at sign-up, then 1 credit per video.
+- **awesome-mcp-servers line:**
+  `- [rara-cyber/reelscribe-mcp-server](https://github.com/rara-cyber/reelscribe-mcp-server) [![rara-cyber/reelscribe-mcp-server MCP server](https://glama.ai/mcp/servers/rara-cyber/reelscribe-mcp-server/badges/score.svg)](https://glama.ai/mcp/servers/rara-cyber/reelscribe-mcp-server) 📇 ☁️ 🏠 - Transcribe Instagram Reels, TikTok, YouTube and Facebook videos by URL, with optional top comments, URL batches and Instagram channel transcription.`
+
+## Agensi
+
+`agensi/reelscribe-transcripts/` is a free SKILL.md for https://www.agensi.io/sell. Unlike `plugin/skills/`, it carries its own setup steps, because Agensi buyers install it without the plugin's `.mcp.json`. Keep the tool guidance in both files in step. Upload: `cd agensi && zip -r /tmp/reelscribe-transcripts.zip reelscribe-transcripts`.
