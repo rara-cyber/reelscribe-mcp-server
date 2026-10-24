@@ -26,7 +26,7 @@ Run those commands from this directory for an authorized version update. Registr
 | Glama | Auto-listed: server `rara-cyber/reelscribe-mcp-server` and connector `io.github.rara-cyber/reelscribe` | Commit the root `glama.json` to claim the server |
 | PulseMCP | Not listed; submissions paused since September 3, 2026 | None needed: it ingests the Official Registry when it reopens |
 | Smithery | Not listed, deliberately | Accounts and proxying shut down October 31, 2026 (https://smithery.ai/future); revisit its curated directory after that |
-| mcp.so | Not listed; submission is paid ($39 one-time) | https://mcp.so/submit, awaiting a decision on the fee |
+| mcp.so | Not listed; skipped for now (submission costs $39 one-time) | https://mcp.so/submit if reach there ever matters |
 | awesome-mcp-servers | PR open: https://github.com/punkpeye/awesome-mcp-servers/pull/16715 | Section 🎥 Multimedia Process |
 | Agensi | Live, free: https://www.agensi.io/skills/reelscribe-transcripts | Free skill, `agensi/` (below); edit via the listing's Update button, not a new submission |
 
