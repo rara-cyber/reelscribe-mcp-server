@@ -1,0 +1,10 @@
+{
+  "name": "reelscribe",
+  "version": "2.2.1",
+  "description": "Transcribe Instagram Reels, TikTok, YouTube and Facebook videos by URL, with optional top comments, URL batches and Instagram channels.",
+  "mcpServers": {
+    "reelscribe": {
+      "httpUrl": "https://reelscribe.app/api/mcp"
+    }
+  }
+}
