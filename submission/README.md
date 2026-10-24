@@ -17,7 +17,7 @@ mcp-publisher publish
 
 Run those commands from this directory for an authorized version update. Registry guide: https://modelcontextprotocol.io/registry/quickstart.
 
-## Other directories (status October 17, 2026)
+## Other directories (status October 24, 2026)
 
 | Directory | Status | How |
 |---|---|---|
@@ -25,10 +25,10 @@ Run those commands from this directory for an authorized version update. Registr
 | Official MCP Registry | Live, 2.2.1 | `mcp-publisher` (above) |
 | Glama | Auto-listed: server `rara-cyber/reelscribe-mcp-server` and connector `io.github.rara-cyber/reelscribe` | Commit the root `glama.json` to claim the server |
 | PulseMCP | Not listed; submissions paused since September 3, 2026 | None needed: it ingests the Official Registry when it reopens |
-| Smithery | Not listed | https://smithery.ai/new, publish by URL `https://reelscribe.app/api/mcp` (GitHub sign-in) |
-| mcp.so | Not listed | https://mcp.so/submit (sign-in) |
+| Smithery | Not listed, deliberately | Accounts and proxying shut down October 31, 2026 (https://smithery.ai/future); revisit its curated directory after that |
+| mcp.so | Not listed; submission is paid ($39 one-time) | https://mcp.so/submit, awaiting a decision on the fee |
 | awesome-mcp-servers | PR open: https://github.com/punkpeye/awesome-mcp-servers/pull/16715 | Section 🎥 Multimedia Process |
-| Agensi | Not listed | Free skill, `agensi/` (below) |
+| Agensi | Live, free: https://www.agensi.io/skills/reelscribe-transcripts | Free skill, `agensi/` (below); edit via the listing's Update button, not a new submission |
 
 Listing copy:
 
