@@ -29,6 +29,13 @@ Run those commands from this directory for an authorized version update. Registr
 | mcp.so | Not listed; skipped for now (submission costs $39 one-time) | https://mcp.so/submit if reach there ever matters |
 | awesome-mcp-servers | PR open: https://github.com/punkpeye/awesome-mcp-servers/pull/16715 | Section 🎥 Multimedia Process |
 | Agensi | Live, free: https://www.agensi.io/skills/reelscribe-transcripts | Free skill, `agensi/` (below); edit via the listing's Update button, not a new submission |
+| awesome-remote-mcp-servers | PR open: https://github.com/jaw9c/awesome-remote-mcp-servers/pull/1622 | Marked `OAuth2.1 🔐` (no DCR) |
+| TensorBlock awesome-mcp-servers | PR open: https://github.com/TensorBlock/awesome-mcp-servers/pull/4467 | `docs/multimedia-processing.md` |
+| mcpservers.org | Submitted October 24, free plan (review up to 2 weeks) | Contact hello@reelscribe.app |
+| Gemini CLI extensions | Root `gemini-extension.json` (local stdio + API key setting) and repo topic `gemini-cli-extension` | Crawler indexes the default branch, so it goes live after this branch merges. Hosted OAuth is unusable there: Gemini CLI requires DCR |
+| Docker MCP Catalog | Not submitted | Docker's gateway requires DCR (https://github.com/docker/mcp-gateway/issues/602); the hosted OAuth would fail. Revisit if DCR is enabled in Clerk or that issue ships |
+| Cline MCP Marketplace | Not filed yet | Form requires confirming Cline installs from `llms-install.md`; test in Cline first, then file at https://github.com/cline/mcp-marketplace/issues/new?template=mcp-server-submission.yml with `submission/cline/logo.png` |
+| ChatGPT / Codex plugin directory | Blocked October 24: portal still requires developer identity verification | Owner completes ID verification at https://platform.openai.com/plugins, then uploads the `plugin/` ZIP |
 
 Listing copy:
 
@@ -39,4 +46,4 @@ Listing copy:
 
 ## Agensi
 
-`agensi/reelscribe-transcripts/` is a free SKILL.md for https://www.agensi.io/sell. Unlike `plugin/skills/`, it carries its own setup steps, because Agensi buyers install it without the plugin's `.mcp.json`. Keep the tool guidance in both files in step. Upload: `cd agensi && zip -r /tmp/reelscribe-transcripts.zip reelscribe-transcripts`.
+`agensi/reelscribe-transcripts/` is a free SKILL.md for https://www.agensi.io/sell. Unlike `plugin/skills/`, it carries its own setup steps, because Agensi buyers install it without the plugin's `.mcp.json`. Keep the tool guidance in both files in step. `gemini-extension.json` and `llms-install.md` at the repo root also carry setup steps, and the manifest's `version` must match `package.json`. Upload: `cd agensi && zip -r /tmp/reelscribe-transcripts.zip reelscribe-transcripts`.
