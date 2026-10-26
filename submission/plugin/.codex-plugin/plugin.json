@@ -1,6 +1,6 @@
 {
   "name": "reelscribe",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Transcribe videos, selected comments, URL batches and Instagram channels with ReelScribe.",
   "author": {
     "name": "SIÁN OÜ",
@@ -98,7 +98,7 @@
         "commerce_description": "Access to an existing ReelScribe account. The plugin does not sell credits or subscriptions, initiate checkout, or manage billing. New transcription jobs consume existing account credits."
       },
       "publication": {
-        "release_notes": "MCP 2.2.1 focuses on nine transcription tools: single videos, selected comments, URL batches, Instagram channels, progress, results and credit checks. Downloads, library management, analytics and settings stay in the web app. Batch/channel submissions require additional consent."
+        "release_notes": "MCP 2.3.0 adds Threads, LinkedIn, X and Bluesky links. It keeps nine transcription tools: single videos, selected comments, URL batches, Instagram channels, progress, results and credit checks. Downloads, library management, analytics and settings stay in the web app. Batch/channel submissions require additional consent."
       }
     }
   }

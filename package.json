@@ -1,7 +1,7 @@
 {
   "name": "reelscribe-mcp-server",
-  "version": "2.2.1",
-  "description": "MCP server for ReelScribe video transcription - transcribe Instagram, TikTok, YouTube, and Facebook videos from any AI assistant",
+  "version": "2.3.0",
+  "description": "MCP server for ReelScribe video transcription - transcribe Instagram, TikTok, YouTube, Facebook, Threads, LinkedIn, X and Bluesky videos from any AI assistant",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
