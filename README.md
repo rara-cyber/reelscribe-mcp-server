@@ -127,8 +127,8 @@ The nine tools focus on transcription. Downloads, library management, retries,
 cancellation, analytics, settings and billing are available in the web app.
 Batch and channel submissions require an API key or explicit additional
 `reelscribe:manage` transcription consent; legacy base-only OAuth tokens cannot
-perform them. Facebook comments remain unsupported. The hosted 2.2.1 release
-does not publish the deferred npm release.
+perform them. Facebook comments remain unsupported. Since 2.3.0 the tools also accept
+Threads, LinkedIn, X and Bluesky links.
 
 ### Comment extraction
 

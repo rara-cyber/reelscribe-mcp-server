@@ -3,7 +3,7 @@
   "name": "io.github.rara-cyber/reelscribe",
   "title": "ReelScribe",
   "description": "Transcribe social videos, selected comments, URL batches and Instagram channels.",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "websiteUrl": "https://reelscribe.app/mcp",
   "repository": {
     "url": "https://github.com/rara-cyber/reelscribe-mcp-server",

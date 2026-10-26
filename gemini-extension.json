@@ -1,7 +1,7 @@
 {
   "name": "reelscribe",
-  "version": "2.2.1",
-  "description": "Transcribe Instagram Reels, TikTok, YouTube and Facebook videos by URL, with optional top comments, URL batches and Instagram channels.",
+  "version": "2.3.0",
+  "description": "Transcribe Instagram Reels, TikTok, YouTube, Facebook, Threads, LinkedIn, X and Bluesky videos by URL, with optional top comments, URL batches and Instagram channels.",
   "mcpServers": {
     "reelscribe": {
       "command": "npx",
