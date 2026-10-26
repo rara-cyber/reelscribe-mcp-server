@@ -176,6 +176,10 @@ auto-deleted.
 - **TikTok** — Videos, short links (`vm.tiktok.com`, `vt.tiktok.com`)
 - **YouTube** — Videos, Shorts, short links (`youtu.be`)
 - **Facebook** — Videos (`/watch?v=`, `/videos/`), Reels, short links (`fb.watch`)
+- **Threads** — Video posts (`threads.com` / `threads.net`, share links)
+- **LinkedIn** — Public video posts (`/posts/`, `/feed/update/`, embed links)
+- **X** — Video posts (`x.com` / `twitter.com`, `t.co`, fxtwitter-style mirrors)
+- **Bluesky** — Video posts (`bsky.app/profile/…/post/…`)
 
 ## Example Usage
 

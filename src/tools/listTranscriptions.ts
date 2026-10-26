@@ -130,7 +130,7 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
         .optional()
         .describe("Filter by transcription status"),
       owner: z.string().max(200).optional().describe("Exact creator/channel name"),
-      platform: z.enum(["instagram", "tiktok", "youtube", "facebook"]).optional(),
+      platform: z.enum(["instagram", "tiktok", "youtube", "facebook", "threads", "linkedin", "x", "bluesky"]).optional(),
       bulkJobId: z.string().max(200).optional(),
       requestIdFilter: z.string().max(200).optional().describe("Exact transcription request ID filter"),
       startDate: z.number().int().min(0).optional().describe("Inclusive creation date, epoch milliseconds"),

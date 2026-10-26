@@ -3,9 +3,11 @@
  * Ported from src/utils/validators.ts — standalone, no app dependencies.
  */
 
+import { parseSocialPostUrl } from "./socialUrls.js";
+
 export interface ValidateResult {
   valid: boolean;
-  platform?: "instagram" | "tiktok" | "youtube" | "facebook";
+  platform?: "instagram" | "tiktok" | "youtube" | "facebook" | "threads" | "linkedin" | "x" | "bluesky";
   normalizedUrl?: string;
   error?: string;
 }
@@ -252,8 +254,12 @@ export function validateUrl(url: string): ValidateResult {
   const fbResult = validateFacebook(trimmed);
   if (fbResult.valid) return fbResult;
 
+  // Threads, LinkedIn, X, Bluesky — same parser as the API (src/socialUrls.ts).
+  const social = parseSocialPostUrl(trimmed);
+  if (social) return { valid: true, platform: social.platform, normalizedUrl: social.formattedUrl };
+
   return {
     valid: false,
-    error: "Unsupported URL. Provide an Instagram, TikTok, YouTube, or Facebook video URL.",
+    error: "Unsupported URL. Provide an Instagram, TikTok, YouTube, Facebook, Threads, LinkedIn, X or Bluesky video URL.",
   };
 }

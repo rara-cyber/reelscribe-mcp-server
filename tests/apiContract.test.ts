@@ -353,3 +353,14 @@ describe("search_transcriptions: a miss is scoped, not absolute", () => {
     expect(json.note).toContain("not proof about the whole library");
   });
 });
+
+import { validateUrl as validateNewPlatform } from "../src/validators.js";
+test("new platforms validate with the API's own normalisation", () => {
+  expect(validateNewPlatform("https://twitter.com/a/status/42?s=20")).toMatchObject({ valid: true, platform: "x", normalizedUrl: "https://x.com/a/status/42" });
+  expect(validateNewPlatform("https://www.threads.net/@nasa/post/DeMqtuYgkaL")).toMatchObject({ valid: true, platform: "threads" });
+  expect(validateNewPlatform("https://www.linkedin.com/posts/a_b-activity-7439430699750674432-x")).toMatchObject({
+    valid: true, platform: "linkedin", normalizedUrl: "https://www.linkedin.com/feed/update/urn:li:activity:7439430699750674432/",
+  });
+  expect(validateNewPlatform("https://bsky.app/profile/theonion.com/post/3myf")).toMatchObject({ valid: true, platform: "bluesky" });
+  expect(validateNewPlatform("https://www.linkedin.com/in/someone").valid).toBe(false);
+});
