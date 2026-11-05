@@ -68,10 +68,12 @@ export default {
     }
     if (auth.status === 401 || auth.status === 403) return challenge();
     if (!auth.ok) return response({ error: "authentication_unavailable" }, 503);
+    // Set only for users whose stored consent allows analytics (api/v1.js); everyone else stays anonymous.
+    let analyticsId: string | undefined;
     try {
-      if ((await auth.json() as { authenticated?: unknown }).authenticated !== true) {
-        return response({ error: "authentication_unavailable" }, 503);
-      }
+      const body = await auth.json() as { authenticated?: unknown; analyticsId?: unknown };
+      if (body.authenticated !== true) return response({ error: "authentication_unavailable" }, 503);
+      if (typeof body.analyticsId === "string" && body.analyticsId.startsWith("user_")) analyticsId = body.analyticsId;
     } catch {
       return response({ error: "authentication_unavailable" }, 503);
     }
@@ -81,7 +83,7 @@ export default {
     // ponytail: one PostHog client per request, so no batch outlives its request in a Worker isolate.
     const posthog = env.POSTHOG_KEY ? new PostHog(env.POSTHOG_KEY, { host: "https://us.i.posthog.com", flushAt: 1, flushInterval: 0 }) : undefined;
     // Conversation IDs would add a JSON block to every tool result, and model capture an llm_model argument to every schema.
-    if (posthog) instrument(server, posthog, { enableConversationId: false, captureModel: false, beforeSend: dropContent });
+    if (posthog) instrument(server, posthog, { enableConversationId: false, captureModel: false, beforeSend: dropContent, identify: analyticsId ? { distinctId: analyticsId } : null });
     // enableJsonResponse also lets the SDK carry its session token in MCP-Session-Id across stateless requests.
     const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     await server.connect(transport);
