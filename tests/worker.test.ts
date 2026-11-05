@@ -104,3 +104,33 @@ test("branded alias discovery identifies the branded resource without changing t
   expect(response.status).toBe(401);
   expect(response.headers.get("WWW-Authenticate")).toContain("oauth-protected-resource/mcp?branded=1");
 });
+
+test("tool calls reach PostHog MCP analytics without arguments or transcripts", async () => {
+  const batches: any[] = [];
+  globalThis.fetch = (async (url: RequestInfo | URL, init?: RequestInit) => {
+    const target = new URL(String(url));
+    if (target.hostname === "us.i.posthog.com") {
+      const raw = new Uint8Array(await new Response(init?.body).arrayBuffer());
+      const gzipped = new Headers(init?.headers).get("Content-Encoding") === "gzip";
+      batches.push(JSON.parse(new TextDecoder().decode(gzipped ? Bun.gunzipSync(raw) : raw)));
+      return Response.json({ status: 1 });
+    }
+    if (target.pathname.endsWith("/auth")) return Response.json({ authenticated: true });
+    return Response.json({ id: "t1", status: "completed", transcription: "SECRET TRANSCRIPT", url: "https://www.instagram.com/reel/ABC123/" });
+  }) as typeof fetch;
+  const pending: Promise<unknown>[] = [];
+  const analyticsEnv = { ...env, POSTHOG_KEY: "phc_test" };
+  const response = await worker.fetch(request("tools/call", { name: "get_transcription", arguments: { id: "t1", context: "Summarise a reel for the user" } }, "alice"), analyticsEnv, { waitUntil: p => { pending.push(p); } });
+  const text = (await response.json() as any).result.content.map((block: any) => block.text).join("\n");
+  await Promise.all(pending);
+
+  expect(text).toContain("SECRET TRANSCRIPT");
+  expect(text).not.toContain("conversation_id");
+  const events = batches.flatMap(batch => batch.batch ?? [batch]);
+  const call = events.find(event => event.event === "$mcp_tool_call");
+  expect(call.properties).toMatchObject({ $mcp_tool_name: "get_transcription", $mcp_source: "posthog_mcp_analytics", $mcp_is_error: false, $mcp_intent: "Summarise a reel for the user" });
+  expect(call.properties.$mcp_parameters).toBeUndefined();
+  expect(call.properties.$mcp_response).toBeUndefined();
+  expect(JSON.stringify(events)).not.toContain("SECRET TRANSCRIPT");
+  expect(JSON.stringify(events)).not.toContain("instagram.com/reel");
+});
