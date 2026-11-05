@@ -134,3 +134,29 @@ test("tool calls reach PostHog MCP analytics without arguments or transcripts", 
   expect(JSON.stringify(events)).not.toContain("SECRET TRANSCRIPT");
   expect(JSON.stringify(events)).not.toContain("instagram.com/reel");
 });
+
+async function capturedCall(auth: Record<string, unknown>) {
+  const batches: any[] = [];
+  globalThis.fetch = (async (url: RequestInfo | URL, init?: RequestInit) => {
+    const target = new URL(String(url));
+    if (target.hostname === "us.i.posthog.com") {
+      const raw = new Uint8Array(await new Response(init?.body).arrayBuffer());
+      const gzipped = new Headers(init?.headers).get("Content-Encoding") === "gzip";
+      batches.push(JSON.parse(new TextDecoder().decode(gzipped ? Bun.gunzipSync(raw) : raw)));
+      return Response.json({ status: 1 });
+    }
+    if (target.pathname.endsWith("/auth")) return Response.json(auth);
+    return Response.json({ valid: true });
+  }) as typeof fetch;
+  const pending: Promise<unknown>[] = [];
+  await worker.fetch(request("tools/call", { name: "validate_url", arguments: { url: "https://youtu.be/abc" } }, "alice"), { ...env, POSTHOG_KEY: "phc_test" }, { waitUntil: p => { pending.push(p); } });
+  await Promise.all(pending);
+  return batches.flatMap(batch => batch.batch ?? [batch]).find(event => event.event === "$mcp_tool_call");
+}
+
+test("analytics records join the account only when /v1/auth returns an analytics id", async () => {
+  expect((await capturedCall({ authenticated: true, analyticsId: "user_alice" })).distinct_id).toBe("user_alice");
+  for (const auth of [{ authenticated: true, analyticsId: null }, { authenticated: true }, { authenticated: true, analyticsId: "not-a-clerk-id" }]) {
+    expect((await capturedCall(auth)).distinct_id).not.toMatch(/^user_|^not-a-clerk-id$/);
+  }
+});
