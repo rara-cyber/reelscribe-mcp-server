@@ -1,9 +1,25 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import { PostHog, instrument } from "@posthog/mcp";
 import { createApiClient } from "./client.js";
 import { createServer } from "./server.js";
 
 interface Env {
   CLERK_ISSUER: string;
+  /** Public PostHog project key. Unset = no MCP analytics. */
+  POSTHOG_KEY?: string;
+}
+
+/**
+ * Tool arguments carry the URLs people transcribe and responses carry the
+ * transcripts themselves. Neither goes to PostHog; tool name, timing, error
+ * state, input key names and the agent's stated intent do.
+ */
+function dropContent<E extends { properties?: Record<string, unknown> }>(event: E): E {
+  if (event.properties) {
+    delete event.properties.$mcp_parameters;
+    delete event.properties.$mcp_response;
+  }
+  return event;
 }
 
 const RESOURCE = "https://reelscribe-mcp.sian-agency.workers.dev/mcp";
@@ -22,7 +38,7 @@ function response(body: unknown, status = 200, headers: Record<string, string> =
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx?: { waitUntil(promise: Promise<unknown>): void }): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname;
     const branded = url.searchParams.get("branded") === "1";
@@ -62,6 +78,11 @@ export default {
 
     // Each request gets a server and credential closure; no user state is shared between requests.
     const server = createServer(createApiClient(() => token), true);
+    // ponytail: one PostHog client per request, so no batch outlives its request in a Worker isolate.
+    const posthog = env.POSTHOG_KEY ? new PostHog(env.POSTHOG_KEY, { host: "https://us.i.posthog.com", flushAt: 1, flushInterval: 0 }) : undefined;
+    // Conversation IDs would add a JSON block to every tool result, and model capture an llm_model argument to every schema.
+    if (posthog) instrument(server, posthog, { enableConversationId: false, captureModel: false, beforeSend: dropContent });
+    // enableJsonResponse also lets the SDK carry its session token in MCP-Session-Id across stateless requests.
     const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     await server.connect(transport);
     try {
@@ -71,6 +92,8 @@ export default {
       return new Response(await result.arrayBuffer(), { status: result.status, headers });
     } finally {
       await server.close();
+      const sent = posthog?.shutdown();
+      if (sent) ctx ? ctx.waitUntil(sent) : await sent;
     }
   },
 };
