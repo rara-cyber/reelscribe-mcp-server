@@ -205,7 +205,7 @@ export function createApiClient(getToken: () => string) {
     for (const [key, value] of Object.entries(params)) if (value !== undefined) qs.set(key, String(value));
     return request<unknown>(`${path}?${qs}`);
   };
-  const transcribeBulk = (params: { urls?: string[]; channelUsername?: string; reelCount?: number; onlyPostsNewerThan?: string }) => post("/bulk-transcribe", params);
+  const transcribeBulk = (params: { urls?: string[]; channelUsername?: string; reelCount?: number; onlyPostsNewerThan?: string; direction?: 'older' | 'newer'; cursor?: string }) => post("/bulk-transcribe", params);
   const listJobs = (params: { bulkJobId?: string; cursor?: string }) => query("/jobs", params);
   return { transcribe, getTranscription, listTranscriptions, searchTranscriptionsByUrl, getCredits,
     transcribeBulk, listJobs };

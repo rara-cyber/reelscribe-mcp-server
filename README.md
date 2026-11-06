@@ -120,7 +120,7 @@ Add to your MCP client configuration:
 | `validate_url` | Check if a URL is supported without submitting. |
 
 | `transcribe_bulk` | Submit a URL list (including URLs read from CSV); tier limits and 1 credit per new video apply. |
-| `transcribe_instagram_channel` | Paid Instagram channel scraping, 1–50 reels and optional date filter. |
+| `transcribe_instagram_channel` | Paid Instagram channel scraping, 1–50 reels and optional date filter. Can continue a channel with older reels or new posts. |
 | `list_jobs` | Read progress and page through owned batch/channel jobs. |
 
 The nine tools focus on transcription. Downloads, library management, retries,
