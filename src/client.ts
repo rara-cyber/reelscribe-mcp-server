@@ -36,6 +36,8 @@ export interface Transcription {
   mentions: string[] | null;
   comments: Array<{ text: string; author: string; likes: number; isPinned: boolean; isCreator: boolean }> | null;
   owner: string | null;
+  topic?: string | null;
+  subTopic?: string | null;
   duration: number | null;
   bulkJobId?: string | null;
   retryCount?: number;
@@ -170,6 +172,8 @@ export function createApiClient(getToken: () => string) {
   async function listTranscriptions(params?: {
     status?: string;
     owner?: string;
+    topic?: string;
+    subTopic?: string;
     platform?: string;
     bulkJobId?: string;
     requestIdFilter?: string;

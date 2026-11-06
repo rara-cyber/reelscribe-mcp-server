@@ -114,7 +114,7 @@ Add to your MCP client configuration:
 |------|-------------|
 | `transcribe_video` | Submit a video URL (1 credit). Optional `includeComments` for Instagram, TikTok and YouTube. Hosted server returns a job ID; local server waits for the result. |
 | `get_transcription` | Get a transcription by ID or requestId. Returns full transcript text. |
-| `list_transcriptions` | List **one page** of your transcriptions (default 20, max 200), newest first. Status, platform, creator, date, job and request filters. |
+| `list_transcriptions` | List **one page** of your transcriptions (default 20, max 200), newest first. Status, platform, creator, Reel Board topic and sub-topic, date, job and request filters. |
 | `search_transcriptions` | Find transcriptions by the original video URL, within a bounded recent window. |
 | `get_credits` | Check credit balance, subscription tier, stored transcription count, and retention. |
 | `validate_url` | Check if a URL is supported without submitting. |

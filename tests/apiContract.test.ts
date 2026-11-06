@@ -95,6 +95,23 @@ function row(i: number, transcriptChars = 4_000): Transcription {
   };
 }
 
+describe("list_transcriptions: topic filters", () => {
+  test("sends topic, subTopic and owner to the API and shows the topic", async () => {
+    const seen = stubApi({
+      transcriptions: [{ ...row(0), topic: "money", subTopic: "Investing" }, row(1)],
+      total: 2,
+      nextCursor: null,
+      hasMore: false,
+    });
+    const { json } = await callTool(registerList, "list_transcriptions", { topic: "money", subTopic: "Investing", owner: "Gary" });
+
+    const sent = new URL(seen.at(-1)!.url).searchParams;
+    expect([sent.get("topic"), sent.get("subTopic"), sent.get("owner")]).toEqual(["money", "Investing", "Gary"]);
+    expect(json.transcriptions[0]).toMatchObject({ topic: "money", subTopic: "Investing" });
+    expect(json.transcriptions[1]).toMatchObject({ topic: null, subTopic: null });
+  });
+});
+
 // ---------------------------------------------------------------------------
 // The page-vs-total regression
 // ---------------------------------------------------------------------------
