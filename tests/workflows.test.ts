@@ -29,19 +29,32 @@ test('transcription tools use only the first-party account-scoped API and flag c
     const operations = [
       ['transcribe_bulk', { urls: ['https://youtu.be/jNQXAC9IVRw'] }, '/v1/bulk-transcribe', 'POST'],
       ['transcribe_instagram_channel', { channelUsername: 'creator', reelCount: 2, onlyPostsNewerThan: '2026-01-01' }, '/v1/bulk-transcribe', 'POST'],
+      ['transcribe_instagram_channel', { channelUsername: 'creator', reelCount: 5, direction: 'older', cursor: 'abc' }, '/v1/bulk-transcribe', 'POST'],
       ['list_jobs', { bulkJobId: 'batch-own' }, '/v1/jobs', 'GET'],
     ] as const;
     for (const [name, args, path, method] of operations) {
       const result = await client.callTool({ name, arguments: args }); expect(result.isError).not.toBe(true);
       expect(calls.at(-1)).toMatchObject({ path, method, token: 'Bearer rs_account-only' });
     }
+    await client.callTool({ name: 'transcribe_instagram_channel', arguments: { channelUsername: 'creator', reelCount: 5, direction: 'older', cursor: 'abc' } });
+    expect(calls.at(-1)?.body).toEqual({ channelUsername: 'creator', reelCount: 5, direction: 'older', cursor: 'abc' });
+  } finally { await client.close(); await server.close(); }
+});
+
+test('the channel tool tells the assistant to ask which direction', async () => {
+  const { server, client } = await connected();
+  try {
+    const { tools } = await client.listTools();
+    const channel = tools.find(t => t.name === 'transcribe_instagram_channel');
+    expect(channel?.description).toContain('ask them before calling');
+    expect(Object.keys(channel?.inputSchema.properties ?? {})).toEqual(expect.arrayContaining(['direction', 'cursor']));
   } finally { await client.close(); await server.close(); }
 });
 
 test('invalid batches are rejected before a request', async () => {
   const { server, client, calls } = await connected();
   try {
-    for (const [name, args] of [['transcribe_bulk', { urls: [] }], ['transcribe_instagram_channel', { channelUsername: 'creator', reelCount: 51 }], ['transcribe_instagram_channel', { channelUsername: '../invalid', reelCount: 1 }]] as const) {
+    for (const [name, args] of [['transcribe_bulk', { urls: [] }], ['transcribe_instagram_channel', { channelUsername: 'creator', reelCount: 51 }], ['transcribe_instagram_channel', { channelUsername: '../invalid', reelCount: 1 }], ['transcribe_instagram_channel', { channelUsername: 'creator', reelCount: 1, direction: 'sideways' }]] as const) {
       const result = await client.callTool({ name, arguments: args }); expect(result.isError).toBe(true);
     }
     expect(calls).toHaveLength(0);
