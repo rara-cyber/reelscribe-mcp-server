@@ -21,6 +21,8 @@ export interface TranscriptionPreview {
   platform: string | null;
   status: string;
   owner: string | null;
+  topic: string | null;
+  subTopic: string | null;
   caption: string | null;
   duration: number | null;
   createdAt: number;
@@ -37,6 +39,8 @@ export function toPreview(t: Transcription): TranscriptionPreview {
     platform: t.platform,
     status: t.status,
     owner: t.owner,
+    topic: t.topic ?? null,
+    subTopic: t.subTopic ?? null,
     // Captions are routinely longer than the transcript preview itself and are
     // rarely what the model is reasoning over.
     caption: t.caption ? t.caption.slice(0, 200) : null,
@@ -123,13 +127,30 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
     `List ONE PAGE of your transcriptions, newest first (default ${DEFAULT_PAGE_SIZE}, max ${MAX_PAGE_SIZE}). ` +
       "The API does not report a library total. `hasMore` and `nextCursor` describe " +
       "pagination; `cursor` selects a subsequent page. `libraryTotal` is populated " +
-      "only for a complete first-page result. Transcripts are returned as previews.",
+      "only for a complete first-page result. Transcripts are returned as previews. " +
+      "`owner` and `topic` combine. With either one a page can be short or empty while " +
+      "`hasMore` is true, so keep following `nextCursor` before saying nothing matched. " +
+      "Only reels sorted on the user's Reel Board have a topic: the rest show null and " +
+      "never match a topic filter.",
     {
       status: z
         .enum(["submitted", "processing", "completed", "failed", "cancelled"])
         .optional()
         .describe("Filter by transcription status"),
-      owner: z.string().max(200).optional().describe("Exact creator/channel name"),
+      owner: z.string().max(200).optional().describe("Creator handle or display name. Capitals, spaces and @ are ignored; the rest must match the whole name."),
+      topic: z
+        .enum(["money", "food", "business", "fitness", "tech", "self", "howto", "travel", "style", "home", "fun", "other"])
+        .optional()
+        .describe(
+          "Reel Board topic: money (Money & Finance), food (Food & Recipes), business (Business & Growth), " +
+            "fitness (Health & Fitness), tech (Tech & AI), self (Self-improvement), howto (How-to & Learning), " +
+            "travel, style (Style & Beauty), home, fun (Entertainment), other"
+        ),
+      subTopic: z
+        .string()
+        .max(200)
+        .optional()
+        .describe("Sub-topic inside `topic`, such as Investing or AI Tools. Needs `topic`. An unknown name returns an error listing the valid ones."),
       platform: z.enum(["instagram", "tiktok", "youtube", "facebook", "threads", "linkedin", "x", "bluesky"]).optional(),
       bulkJobId: z.string().max(200).optional(),
       requestIdFilter: z.string().max(200).optional().describe("Exact transcription request ID filter"),
