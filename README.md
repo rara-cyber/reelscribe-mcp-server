@@ -202,6 +202,15 @@ Each transcription costs 1 credit. [View pricing](https://reelscribe.app/pricing
 
 ## Changelog
 
+### 2.4.0
+
+- `list_transcriptions` filters by Reel Board `topic` and `subTopic`, and shows
+  each reel's topic. Only sorted reels have one.
+- `owner` now ignores capitals, spaces and `@`, and matches the handle or the
+  display name.
+- `transcribe_instagram_channel` continues a channel with `direction`: `older`
+  for reels you do not have yet, `newer` for posts since your latest one.
+
 ### 2.1.0
 
 - Optional `includeComments` on `transcribe_video` for Instagram, TikTok and
