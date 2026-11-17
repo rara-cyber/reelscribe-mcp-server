@@ -9,6 +9,12 @@ export interface ApiError {
   error: { code: string; message: string; status: number };
 }
 
+export class ApiRequestError extends Error {
+  constructor(message: string, readonly status: number, readonly code?: string) {
+    super(message);
+  }
+}
+
 export interface TranscribeResult {
   requestId: string;
   status: string;
@@ -145,8 +151,14 @@ export function createApiClient(getToken: () => string) {
     const body = await res.json();
 
     if (!res.ok) {
-      const error = (body as { error?: string | { message?: string } }).error;
-      throw new Error(typeof error === "string" ? error : error?.message || `API request failed with status ${res.status}`);
+      const error = (body as { error?: string | Partial<ApiError["error"]> } | null)?.error;
+      const message = typeof error === "string" ? error : error?.message;
+      const code = typeof error === "object" ? error?.code : undefined;
+      throw new ApiRequestError(
+        typeof message === "string" && message ? message : `API request failed with status ${res.status}`,
+        res.status,
+        typeof code === "string" ? code : undefined,
+      );
     }
 
     return body as T;

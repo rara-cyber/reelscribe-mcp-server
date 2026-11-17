@@ -160,3 +160,56 @@ test("analytics records join the account only when /v1/auth returns an analytics
     expect((await capturedCall(auth)).distinct_id).not.toMatch(/^user_|^not-a-clerk-id$/);
   }
 });
+
+test("expected tool rejections stay in MCP analytics and unexpected failures reach Error Tracking", async () => {
+  const cases = [
+    { tool: "transcribe_bulk", args: { urls: ["https://youtu.be/example"] }, status: 409, message: "All URLs are duplicates", expected: true },
+    { tool: "transcribe_instagram_channel", args: { channelUsername: "creator", reelCount: 1 }, status: 403, message: "Upgrade required", expected: true },
+    { tool: "transcribe_bulk", args: { urls: ["https://example.com/video"] }, status: 400, message: "Unsupported URL format. Please provide Instagram, TikTok, YouTube, Facebook, Threads, LinkedIn, X, or Bluesky URLs.", expected: true },
+    { tool: "list_jobs", args: { bulkJobId: "missing" }, status: 404, message: "Job not found", code: "INVALID_REQUEST", expected: true },
+    { tool: "get_transcription", args: { id: "missing" }, status: 404, message: "Transcription not found", code: "NOT_FOUND", expected: true },
+    { tool: "list_jobs", args: { bulkJobId: "missing" }, status: 500, message: "Job not found", code: "INVALID_REQUEST", expected: false },
+    { tool: "list_jobs", args: { bulkJobId: "missing" }, status: 404, message: "Unknown endpoint: /v1/jobs", code: "NOT_FOUND", expected: false },
+    { tool: "get_transcription", args: { id: "missing" }, status: 503, message: "Service unavailable", code: "SERVICE_ERROR", expected: false },
+    { tool: "get_transcription", args: { id: "missing" }, message: "Connection reset", expected: false },
+    { tool: "transcribe_bulk", args: { urls: [] }, message: "Input validation error: Invalid arguments for tool", expected: true, sdkError: true },
+    { tool: "get_transcription", args: {}, message: "Provide either id or requestId", expected: true },
+  ];
+
+  for (const { tool, args, status, message, code, expected, sdkError } of cases) {
+    const events: Array<{ event: string; properties: Record<string, unknown> }> = [];
+    globalThis.fetch = (async (url: RequestInfo | URL, init?: RequestInit) => {
+      const target = new URL(String(url));
+      if (target.hostname === "us.i.posthog.com") {
+        const raw = new Uint8Array(await new Response(init?.body).arrayBuffer());
+        const gzipped = new Headers(init?.headers).get("Content-Encoding") === "gzip";
+        const batch = JSON.parse(new TextDecoder().decode(gzipped ? Bun.gunzipSync(raw) : raw));
+        events.push(...(batch.batch ?? [batch]));
+        return Response.json({ status: 1 });
+      }
+      if (target.pathname.endsWith("/auth")) return Response.json({ authenticated: true });
+      if (!status) throw new Error(expected ? "Unexpected API call" : message);
+      return Response.json({ error: code ? { code, message, status } : message }, { status });
+    }) as typeof fetch;
+
+    const response = await worker.fetch(
+      request("tools/call", { name: tool, arguments: args }, "alice"),
+      { ...env, POSTHOG_KEY: "phc_test" },
+    );
+    const { result } = await response.json() as { result: { isError: boolean; content: { text: string }[] } };
+
+    expect(result.isError).toBe(true);
+    if (sdkError) {
+      expect(result.content[0].text).toContain(message);
+    } else {
+      expect(JSON.parse(result.content[0].text)).toMatchObject({ error: true, message });
+    }
+
+    const toolCall = events.find(event => event.event === "$mcp_tool_call");
+    expect(toolCall?.properties).toMatchObject({ $mcp_tool_name: tool, $mcp_is_error: true });
+    expect(toolCall?.properties.$mcp_error_message).toContain(message);
+    expect(toolCall?.properties.$mcp_parameters).toBeUndefined();
+    expect(toolCall?.properties.$mcp_response).toBeUndefined();
+    expect(events.filter(event => event.event === "$exception")).toHaveLength(expected ? 0 : 1);
+  }
+});
