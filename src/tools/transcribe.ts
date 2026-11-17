@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import * as defaultApi from "../client.js";
 import type { ApiClient } from "../client.js";
+import { ExpectedToolError, toolApiError } from "../toolError.js";
 import { validateUrl } from "../validators.js";
 
 const POLL_INTERVAL_MS = 3_000;
@@ -23,24 +24,22 @@ export function register(server: McpServer, api: ApiClient = defaultApi, waitFor
     async ({ url, includeComments = false }) => {
       const validation = validateUrl(url);
       if (!validation.valid) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                { error: true, code: "INVALID_URL", message: validation.error },
-                null,
-                2
-              ),
-            },
-          ],
-        };
+        throw new ExpectedToolError(JSON.stringify(
+          { error: true, code: "INVALID_URL", message: validation.error },
+          null,
+          2,
+        ));
+      }
+
+      if (includeComments && !["instagram", "tiktok", "youtube"].includes(validation.platform ?? "")) {
+        throw new ExpectedToolError(JSON.stringify({
+          error: true,
+          code: "INVALID_OPTION",
+          message: "Comment extraction supports Instagram, TikTok and YouTube only.",
+        }));
       }
 
       try {
-        if (includeComments && !["instagram", "tiktok", "youtube"].includes(validation.platform ?? "")) {
-          return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: true, code: "INVALID_OPTION", message: "Comment extraction supports Instagram, TikTok and YouTube only." }) }] };
-        }
         const result = await api.transcribe(validation.normalizedUrl!, includeComments);
 
         // If duplicate, fetch and return the existing transcription directly
@@ -107,22 +106,7 @@ export function register(server: McpServer, api: ApiClient = defaultApi, waitFor
           ],
         };
       } catch (err) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  error: true,
-                  code: "API_ERROR",
-                  message: err instanceof Error ? err.message : String(err),
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
+        throw toolApiError(err, "API_ERROR");
       }
     }
   );

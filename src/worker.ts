@@ -1,7 +1,8 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { PostHog, instrument } from "@posthog/mcp";
+import { PostHog, instrument, type BeforeSendFn } from "@posthog/mcp";
 import { createApiClient } from "./client.js";
 import { createServer } from "./server.js";
+import { EXPECTED_TOOL_ERROR } from "./toolError.js";
 
 interface Env {
   CLERK_ISSUER: string;
@@ -14,13 +15,23 @@ interface Env {
  * transcripts themselves. Neither goes to PostHog; tool name, timing, error
  * state, input key names and the agent's stated intent do.
  */
-function dropContent<E extends { properties?: Record<string, unknown> }>(event: E): E {
-  if (event.properties) {
-    delete event.properties.$mcp_parameters;
-    delete event.properties.$mcp_response;
+const filterAnalyticsEvent: BeforeSendFn = (event) => {
+  const properties = event.properties;
+  if (properties) {
+    if (event.event === "$exception" && Array.isArray(properties.$exception_list)) {
+      const exception = properties.$exception_list[0];
+      // MCP SDK input errors reach the analytics hook as synthetic strings.
+      if (exception?.type === EXPECTED_TOOL_ERROR ||
+        (exception?.mechanism?.synthetic === true && typeof exception.value === "string" &&
+          /^MCP error -32602: (?:(?:Input validation error: )?Invalid arguments for tool |Tool .+ (?:not found|disabled)$)/.test(exception.value))) {
+        return null;
+      }
+    }
+    delete properties.$mcp_parameters;
+    delete properties.$mcp_response;
   }
   return event;
-}
+};
 
 const RESOURCE = "https://reelscribe-mcp.sian-agency.workers.dev/mcp";
 const BRANDED_RESOURCE = "https://reelscribe.app/api/mcp";
@@ -83,7 +94,7 @@ export default {
     // ponytail: one PostHog client per request, so no batch outlives its request in a Worker isolate.
     const posthog = env.POSTHOG_KEY ? new PostHog(env.POSTHOG_KEY, { host: "https://us.i.posthog.com", flushAt: 1, flushInterval: 0 }) : undefined;
     // Conversation IDs would add a JSON block to every tool result, and model capture an llm_model argument to every schema.
-    if (posthog) instrument(server, posthog, { enableConversationId: false, captureModel: false, beforeSend: dropContent, identify: analyticsId ? { distinctId: analyticsId } : null });
+    if (posthog) instrument(server, posthog, { enableConversationId: false, captureModel: false, beforeSend: filterAnalyticsEvent, identify: analyticsId ? { distinctId: analyticsId } : null });
     // enableJsonResponse also lets the SDK carry its session token in MCP-Session-Id across stateless requests.
     const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     await server.connect(transport);

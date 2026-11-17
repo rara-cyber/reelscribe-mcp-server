@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import * as defaultApi from "../client.js";
 import type { ApiClient } from "../client.js";
+import { toolApiError } from "../toolError.js";
 import type { TranscriptionList } from "../client.js";
 
 /**
@@ -77,22 +78,7 @@ export function register(server: McpServer, api: ApiClient = defaultApi) {
           ],
         };
       } catch (err) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(
-                {
-                  error: true,
-                  code: "API_ERROR",
-                  message: err instanceof Error ? err.message : String(err),
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
+        throw toolApiError(err, "API_ERROR");
       }
     }
   );

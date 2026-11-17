@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import * as defaultApi from '../client.js';
 import type { ApiClient } from '../client.js';
+import { toolApiError } from '../toolError.js';
 
 const id = z.string().min(1).max(200);
 export function register(server: McpServer, api: ApiClient = defaultApi) {
@@ -30,5 +31,5 @@ The reply can report fewer reels than requested, or status "nothing_found" with 
 
 async function reply(run: () => Promise<unknown>) {
   try { return { content: [{ type: 'text' as const, text: JSON.stringify(await run(), null, 2) }] }; }
-  catch (error) { return { isError: true, content: [{ type: 'text' as const, text: JSON.stringify({ error: true, message: error instanceof Error ? error.message : String(error) }) }] }; }
+  catch (error) { throw toolApiError(error); }
 }
